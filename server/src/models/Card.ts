@@ -13,12 +13,20 @@ export interface ICard extends Document {
   nationality: string;
   position: PositionType;
   rating: number;
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physical: number;
+  // Outfield stats (optional for pure GKs)
+  pace?: number;
+  shooting?: number;
+  passing?: number;
+  dribbling?: number;
+  defending?: number;
+  physical?: number;
+  // Goalkeeper stats (optional for outfield players)
+  diving?: number;
+  handling?: number;
+  kicking?: number;
+  reflexes?: number;
+  speed?: number;
+  positioning?: number;
 }
 
 const CardSchema: Schema = new Schema(
@@ -38,12 +46,20 @@ const CardSchema: Schema = new Schema(
       ],
     },
     rating: { type: Number, required: true, min: 1, max: 99 },
-    pace: { type: Number, required: true, min: 1, max: 99 },
-    shooting: { type: Number, required: true, min: 1, max: 99 },
-    passing: { type: Number, required: true, min: 1, max: 99 },
-    dribbling: { type: Number, required: true, min: 1, max: 99 },
-    defending: { type: Number, required: true, min: 1, max: 99 },
-    physical: { type: Number, required: true, min: 1, max: 99 },
+    // Outfield
+    pace: { type: Number, min: 1, max: 99 },
+    shooting: { type: Number, min: 1, max: 99 },
+    passing: { type: Number, min: 1, max: 99 },
+    dribbling: { type: Number, min: 1, max: 99 },
+    defending: { type: Number, min: 1, max: 99 },
+    physical: { type: Number, min: 1, max: 99 },
+    // Goalkeeper
+    diving: { type: Number, min: 1, max: 99 },
+    handling: { type: Number, min: 1, max: 99 },
+    kicking: { type: Number, min: 1, max: 99 },
+    reflexes: { type: Number, min: 1, max: 99 },
+    speed: { type: Number, min: 1, max: 99 },
+    positioning: { type: Number, min: 1, max: 99 },
   },
   { timestamps: true }
 );

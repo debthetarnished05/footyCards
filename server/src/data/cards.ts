@@ -7,16 +7,24 @@ export interface CardData {
   nationality: string;
   position: PositionType;
   rating: number;
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physical: number;
+  // Outfield
+  pace?: number;
+  shooting?: number;
+  passing?: number;
+  dribbling?: number;
+  defending?: number;
+  physical?: number;
+  // Goalkeeper
+  diving?: number;
+  handling?: number;
+  kicking?: number;
+  reflexes?: number;
+  speed?: number;
+  positioning?: number;
 }
 
 export const MASTER_DECK: CardData[] = [
-  // --- Forwards (ST, LW, RW) ---
+  // --- Forwards ---
   { cardId: 'c1', name: 'Erling Haaland', club: 'Manchester City', nationality: 'Norway', position: 'ST', rating: 91, pace: 89, shooting: 93, passing: 66, dribbling: 80, defending: 45, physical: 88 },
   { cardId: 'c2', name: 'Kylian Mbappé', club: 'Real Madrid', nationality: 'France', position: 'ST', rating: 91, pace: 97, shooting: 90, passing: 80, dribbling: 92, defending: 36, physical: 78 },
   { cardId: 'c3', name: 'Harry Kane', club: 'Bayern Munich', nationality: 'England', position: 'ST', rating: 90, pace: 69, shooting: 93, passing: 84, dribbling: 83, defending: 49, physical: 83 },
@@ -28,7 +36,7 @@ export const MASTER_DECK: CardData[] = [
   { cardId: 'c9', name: 'Lautaro Martínez', club: 'Inter Milan', nationality: 'Argentina', position: 'ST', rating: 89, pace: 82, shooting: 88, passing: 75, dribbling: 86, defending: 48, physical: 85 },
   { cardId: 'c10', name: 'Victor Osimhen', club: 'Galatasaray', nationality: 'Nigeria', position: 'ST', rating: 87, pace: 89, shooting: 85, passing: 66, dribbling: 81, defending: 42, physical: 82 },
 
-  // --- Midfielders (CM, CDM, CAM, LM, RM) ---
+  // --- Midfielders ---
   { cardId: 'c11', name: 'Kevin De Bruyne', club: 'Manchester City', nationality: 'Belgium', position: 'CM', rating: 90, pace: 72, shooting: 87, passing: 94, dribbling: 87, defending: 65, physical: 78 },
   { cardId: 'c12', name: 'Rodri', club: 'Manchester City', nationality: 'Spain', position: 'CDM', rating: 91, pace: 66, shooting: 80, passing: 86, dribbling: 84, defending: 87, physical: 85 },
   { cardId: 'c13', name: 'Jude Bellingham', club: 'Real Madrid', nationality: 'England', position: 'CAM', rating: 90, pace: 80, shooting: 87, passing: 83, dribbling: 88, defending: 78, physical: 83 },
@@ -40,7 +48,7 @@ export const MASTER_DECK: CardData[] = [
   { cardId: 'c19', name: 'Nicolò Barella', club: 'Inter Milan', nationality: 'Italy', position: 'CM', rating: 87, pace: 79, shooting: 76, passing: 83, dribbling: 86, defending: 77, physical: 82 },
   { cardId: 'c20', name: 'Bruno Fernandes', club: 'Manchester United', nationality: 'Portugal', position: 'CAM', rating: 87, pace: 71, shooting: 85, passing: 90, dribbling: 83, defending: 69, physical: 77 },
 
-  // --- Defenders (CB, RB, LB) ---
+  // --- Defenders ---
   { cardId: 'c21', name: 'Virgil van Dijk', club: 'Liverpool', nationality: 'Netherlands', position: 'CB', rating: 89, pace: 78, shooting: 60, passing: 72, dribbling: 72, defending: 89, physical: 86 },
   { cardId: 'c22', name: 'Rúben Dias', club: 'Manchester City', nationality: 'Portugal', position: 'CB', rating: 88, pace: 62, shooting: 39, passing: 70, dribbling: 68, defending: 89, physical: 87 },
   { cardId: 'c23', name: 'William Saliba', club: 'Arsenal', nationality: 'France', position: 'CB', rating: 87, pace: 82, shooting: 30, passing: 71, dribbling: 73, defending: 87, physical: 83 },
@@ -52,8 +60,9 @@ export const MASTER_DECK: CardData[] = [
   { cardId: 'c29', name: 'Alphonso Davies', club: 'Bayern Munich', nationality: 'Canada', position: 'LB', rating: 84, pace: 95, shooting: 68, passing: 77, dribbling: 84, defending: 76, physical: 77 },
   { cardId: 'c30', name: 'Achraf Hakimi', club: 'Paris Saint-Germain', nationality: 'Morocco', position: 'RB', rating: 84, pace: 92, shooting: 75, passing: 79, dribbling: 80, defending: 75, physical: 78 },
 
-  // --- Goalkeepers (GK) ---
-  { cardId: 'c31', name: 'Thibaut Courtois', club: 'Real Madrid', nationality: 'Belgium', position: 'GK', rating: 89, pace: 46, shooting: 20, passing: 68, dribbling: 50, defending: 90, physical: 84 },
-  { cardId: 'c32', name: 'Alisson Becker', club: 'Liverpool', nationality: 'Brazil', position: 'GK', rating: 89, pace: 50, shooting: 25, passing: 85, dribbling: 55, defending: 90, physical: 80 },
-  { cardId: 'c33', name: 'Ederson', club: 'Manchester City', nationality: 'Brazil', position: 'GK', rating: 88, pace: 64, shooting: 22, passing: 93, dribbling: 60, defending: 86, physical: 78 },
+  // --- Goalkeepers (DIV, HAN, KIC, REF, SPD, POS) ---
+  { cardId: 'c31', name: 'Thibaut Courtois', club: 'Real Madrid', nationality: 'Belgium', position: 'GK', rating: 89, diving: 85, handling: 89, kicking: 76, reflexes: 90, speed: 46, positioning: 88 },
+  { cardId: 'c32', name: 'Alisson Becker', club: 'Liverpool', nationality: 'Brazil', position: 'GK', rating: 89, diving: 86, handling: 85, kicking: 85, reflexes: 89, speed: 50, positioning: 90 },
+  { cardId: 'c33', name: 'Ederson', club: 'Manchester City', nationality: 'Brazil', position: 'GK', rating: 88, diving: 84, handling: 82, kicking: 93, reflexes: 86, speed: 64, positioning: 86 },
+  { cardId: 'c34', name: 'Manuel Neuer', club: 'Bayern Munich', nationality: 'Germany', position: 'GK', rating: 88, diving: 87, handling: 86, kicking: 88, reflexes: 87, speed: 44, positioning: 89 },
 ];
