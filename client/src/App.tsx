@@ -1,122 +1,135 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { useSocket } from './context/SocketContext';
+import type { ClientGameState, RoundShowdown, OutfieldStat, AnyBattleStat, PlayerState } from './types/game';
+import { Lobby } from './components/Lobby';
+import { GameArena } from './components/GameArena';
+import { PlayerHand } from './components/PlayerHand';
+import { GameOverModal } from './components/GameOverModal';
+import './styles/game.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export const App: React.FC = () => {
+  const socket = useSocket();
+
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [gameState, setGameState] = useState<ClientGameState | null>(null);
+  const [lastShowdown, setLastShowdown] = useState<RoundShowdown | null>(null);
+  const [gameOverData, setGameOverData] = useState<{
+    winners: PlayerState[];
+    highestScore: number;
+  } | null>(null);
+
+  useEffect(() => {
+    // Synchronize full game state
+    socket.on('game:state_sync', (syncedState: ClientGameState) => {
+      setGameState(syncedState);
+    });
+
+    // Showdown event (reveals round results)
+    socket.on('round:showdown', (showdownResult: RoundShowdown) => {
+      setLastShowdown(showdownResult);
+    });
+
+    // Match concluded
+    socket.on('game:over', ({ winners, highestScore }) => {
+      setGameOverData({ winners, highestScore });
+    });
+
+    return () => {
+      socket.off('game:state_sync');
+      socket.off('round:showdown');
+      socket.off('game:over');
+    };
+  }, [socket]);
+
+  const handleGameStarted = (roomId: string, playerId: string) => {
+    setActiveRoomId(roomId);
+    setCurrentUserId(playerId || socket.id || '');
+  };
+
+  const handleCallStat = (cardId: string, category: OutfieldStat) => {
+    if (!activeRoomId) return;
+    socket.emit('round:caller_select', {
+      roomId: activeRoomId,
+      cardId,
+      category,
+    });
+  };
+
+  const handleSubmitCard = (cardId: string, chosenGkStat?: AnyBattleStat) => {
+    if (!activeRoomId) return;
+    socket.emit('round:submit_card', {
+      roomId: activeRoomId,
+      cardId,
+      chosenGkStat,
+    });
+  };
+
+  const handlePlayAgain = () => {
+    window.location.reload();
+  };
+
+  if (!activeRoomId || !gameState) {
+    return <Lobby onGameStarted={handleGameStarted} />;
+  }
+
+  const myPlayer = gameState.players[currentUserId];
+  const isMyTurnToCall = gameState.phase === 'CALLER_SELECTION' && gameState.callerId === currentUserId;
+  const isMyTurnToRespond =
+    gameState.phase === 'OPPONENT_RESPONSES' &&
+    gameState.callerId !== currentUserId &&
+    !myPlayer?.hasSubmitted;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="game-screen">
+      {/* Top Bar: Roster and Scores */}
+      <div className="match-topbar">
+        <div className="match-round-badge">
+          ROUND {gameState.currentRound} / 11
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+        <div className="players-roster-bar">
+          {Object.values(gameState.players).map((p) => (
+            <div
+              key={p.id}
+              className={`player-roster-pill ${gameState.callerId === p.id ? 'is-turn' : ''}`}
+            >
+              <span>{p.name} {p.id === currentUserId ? '(You)' : ''}</span>
+              <span className="score">{p.score} pts</span>
+            </div>
+          ))}
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
+      {/* Center Field: Played Cards Arena */}
+      <GameArena
+        gameState={gameState}
+        lastShowdown={lastShowdown}
+        currentUserId={currentUserId}
+      />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Bottom Tray: Player Hand */}
+      {myPlayer && (
+        <PlayerHand
+          hand={myPlayer.hand}
+          isMyTurnToCall={isMyTurnToCall}
+          isMyTurnToRespond={isMyTurnToRespond}
+          activeCategory={gameState.selectedCategory}
+          onCallStat={handleCallStat}
+          onSubmitCard={handleSubmitCard}
+        />
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+      {/* Game Over Leaderboard Modal */}
+      {gameOverData && (
+        <GameOverModal
+          winners={gameOverData.winners}
+          highestScore={gameOverData.highestScore}
+          allPlayers={gameState.players}
+          onPlayAgain={handlePlayAgain}
+        />
+      )}
+    </div>
+  );
+};
 
-export default App
+export default App;
