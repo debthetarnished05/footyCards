@@ -10,7 +10,8 @@ export interface GameCard {
   club: string;
   nationality: string;
   position: PositionType;
-  stats: Record<string, number>; // Maps any valid stat to its numeric value
+  image?: string;
+  stats: Record<string, number>;
 }
 
 export interface PlayerState {

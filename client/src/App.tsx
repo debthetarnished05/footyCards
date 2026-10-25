@@ -19,28 +19,38 @@ export const App: React.FC = () => {
     highestScore: number;
   } | null>(null);
 
+// Inside client/src/App.tsx
+
+  const [calledCard, setCalledCard] = useState<GameCard | null>(null);
+
   useEffect(() => {
-    // Synchronize full game state
     socket.on('game:state_sync', (syncedState: ClientGameState) => {
       setGameState(syncedState);
+      if (syncedState.phase === 'CALLER_SELECTION') {
+        setCalledCard(null);
+      }
     });
 
-    // Showdown event (reveals round results)
+    socket.on('round:category_chosen', (data: { callerId: string; callerName: string; card: GameCard; selectedCategory: OutfieldStat }) => {
+      setCalledCard(data.card);
+    });
+
     socket.on('round:showdown', (showdownResult: RoundShowdown) => {
       setLastShowdown(showdownResult);
     });
 
-    // Match concluded
     socket.on('game:over', ({ winners, highestScore }) => {
       setGameOverData({ winners, highestScore });
     });
 
     return () => {
       socket.off('game:state_sync');
+      socket.off('round:category_chosen');
       socket.off('round:showdown');
       socket.off('game:over');
     };
   }, [socket]);
+
 
   const handleGameStarted = (roomId: string, playerId: string) => {
     setActiveRoomId(roomId);
@@ -105,6 +115,7 @@ export const App: React.FC = () => {
         gameState={gameState}
         lastShowdown={lastShowdown}
         currentUserId={currentUserId}
+        calledCard={calledCard}
       />
 
       {/* Bottom Tray: Player Hand */}

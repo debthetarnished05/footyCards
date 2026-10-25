@@ -14,6 +14,9 @@ export interface GameCard {
   club: string;
   nationality: string;
   position: PositionType;
+  image?: string;
+  clubLogo?: string;
+  countryFlag?: string;
   stats: Record<string, number>;
 }
 

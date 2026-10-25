@@ -126,6 +126,9 @@ export class RoomManager {
         club: c.club,
         nationality: c.nationality,
         position: c.position,
+        image: c.image,
+        clubLogo: c.clubLogo,
+        countryFlag: c.countryFlag,
         stats,
       };
     });

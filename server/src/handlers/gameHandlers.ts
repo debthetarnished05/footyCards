@@ -17,42 +17,70 @@ export const registerGameHandlers = (io: Server, socket: Socket, roomManager: Ro
   };
 
   // Helper: Runs CPU turns, checks for round resolution, and handles post-round delay
-  const processTurnCycle = (roomId: string) => {
-    const room = roomManager.getRoom(roomId);
-    if (!room || !room.engine) return;
+// Helper: Runs CPU turns with a 3-second delay, resolves showdowns, and manages transitions
+const processTurnCycle = (roomId: string) => {
+  const room = roomManager.getRoom(roomId);
+  if (!room || !room.engine) return;
 
-    const engine = room.engine;
+  const engine = room.engine;
 
-    // Trigger CPU moves if applicable
-    engine.executeCpuTurns();
+  // Check if any CPU bot needs to take an action (either calling or responding)
+  const cpuNeedsMove = Object.values(engine.getState().players).some(
+    (p) => p.isCpu && !p.hasSubmitted && (engine.getState().phase === 'OPPONENT_RESPONSES' || engine.getState().callerId === p.id)
+  );
+
+  if (cpuNeedsMove) {
+    // Broadcast immediately so players see "WAITING" / card status during the 3-second think time
     broadcastRoomState(roomId);
 
-    // If everyone submitted, reveal cards and resolve points
-    if (engine.allPlayersSubmitted()) {
-      const showdownResult = engine.resolveRound();
-      io.to(roomId).emit('round:showdown', showdownResult);
+    setTimeout(() => {
+      // Re-verify room and engine still exist after delay
+      const activeRoom = roomManager.getRoom(roomId);
+      if (!activeRoom || !activeRoom.engine) return;
+
+      activeRoom.engine.executeCpuTurns();
       broadcastRoomState(roomId);
 
-      // 4-second delay so players can see the revealed cards before the next round begins
-      setTimeout(() => {
-        const hasNextRound = engine.advanceToNextRound();
+      // Check if all players have submitted after CPU moved
+      checkAndResolveShowdown(roomId);
+    }, 3000);
+  } else {
+    // If no CPU move is pending, check directly
+    checkAndResolveShowdown(roomId);
+  }
+};
 
-        if (hasNextRound) {
-          // If the newly designated caller is a CPU, trigger its call
-          engine.executeCpuTurns();
-          broadcastRoomState(roomId);
-        } else {
-          // Match finished (11 rounds complete)
-          const finalWinners = engine.getGameWinners();
-          io.to(roomId).emit('game:over', {
-            finalState: engine.getState(),
-            winners: finalWinners.winners,
-            highestScore: finalWinners.highestScore,
-          });
-        }
-      }, 4000);
-    }
-  };
+// Extracted helper to resolve rounds once everyone submitted
+const checkAndResolveShowdown = (roomId: string) => {
+  const room = roomManager.getRoom(roomId);
+  if (!room || !room.engine) return;
+
+  const engine = room.engine;
+
+  if (engine.allPlayersSubmitted()) {
+    const showdownResult = engine.resolveRound();
+    io.to(roomId).emit('round:showdown', showdownResult);
+    broadcastRoomState(roomId);
+
+    // 4-second review window before the next round begins
+    setTimeout(() => {
+      const hasNextRound = engine.advanceToNextRound();
+
+      if (hasNextRound) {
+        broadcastRoomState(roomId);
+        // Trigger next turn cycle (handles CPU caller if newly designated caller is a bot)
+        processTurnCycle(roomId);
+      } else {
+        const finalWinners = engine.getGameWinners();
+        io.to(roomId).emit('game:over', {
+          finalState: engine.getState(),
+          winners: finalWinners.winners,
+          highestScore: finalWinners.highestScore,
+        });
+      }
+    }, 4000);
+  }
+};
 
   // --- LOBBY EVENTS ---
 
@@ -105,9 +133,14 @@ export const registerGameHandlers = (io: Server, socket: Socket, roomManager: Ro
   // --- GAMEPLAY EVENTS ---
 
   // 5. Caller selects their card and calls the stat
+// Inside server/src/handlers/gameHandlers.ts
+
   socket.on('round:caller_select', ({ roomId, cardId, category }: { roomId: string; cardId: string; category: OutfieldStat }) => {
     const room = roomManager.getRoom(roomId);
     if (!room || !room.engine) return;
+
+    const caller = room.engine.getState().players[socket.id];
+    const chosenCard = caller?.hand.find((c) => c && c.cardId === cardId);
 
     const success = room.engine.callerSelect(socket.id, cardId, category);
     if (!success) {
@@ -115,8 +148,11 @@ export const registerGameHandlers = (io: Server, socket: Socket, roomManager: Ro
       return;
     }
 
+    // Broadcast the selected category along with the played card object
     io.to(roomId).emit('round:category_chosen', {
       callerId: socket.id,
+      callerName: caller?.name || 'Caller',
+      card: chosenCard,
       selectedCategory: category,
     });
 
