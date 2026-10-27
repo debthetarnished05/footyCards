@@ -92,22 +92,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="game-screen">
-      {/* 1. Sleek Match Stand Header Bar */}
-      <div className="table-topbar">
-        <div className="table-stand-title">
-          <span className="stand-name">FootyCards</span>
-          <span className="stand-room-id">ROOM {activeRoomId}</span>
-        </div>
-
-        <div className="table-top-right">
-          <div className="table-round-pill">
-            <span className="round-pill-lbl">ROUND</span>
-            <span className="round-pill-val">{gameState.currentRound} / 11</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Game Arena (Football Pitch with Clash Zone, Player Hand & Standings) */}
       <GameArena
         gameState={gameState}
         lastShowdown={lastShowdown}

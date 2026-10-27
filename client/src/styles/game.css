@@ -1,1213 +1,444 @@
 /* ========================================================
-   FULL SCREEN FOOTY DUEL ARENA — NORTH STAND DASHBOARD
-   (PIXEL-PERFECT BALANCED VIEWPORT BUDGETING)
+   FULL SCREEN HORIZONTAL FOOTBALL PITCH ARENA
+   Modern Athletic Typography (Outfit) & Flat Clean Style
+   No shadows — pure flat floating UI
 ======================================================== */
 
 .game-screen {
-  display: flex;
-  flex-direction: column;
   width: 100vw;
   height: 100vh;
-  max-height: 100vh;
-  background: #04160a;
-  padding: 0;
   margin: 0;
+  padding: 0;
   overflow: hidden;
-  position: relative;
-  user-select: none;
-}
-
-/* ========================================================
-   1. TOPBAR: MINIMALIST MATCH STAND HEADER ("NORTH STAND")
-======================================================== */
-
-.table-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 36px;
-  padding: 0 20px;
-  background: rgba(8, 14, 18, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  flex-shrink: 0;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 20;
-}
-
-.table-stand-title {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.stand-name {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', -apple-system, sans-serif;
-  font-size: 1.15rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #ffffff;
-  text-transform: uppercase;
-}
-
-.stand-room-id {
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 1px;
-}
-
-.table-top-right {
-  display: flex;
-  align-items: center;
-}
-
-.table-round-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-}
-
-.round-pill-lbl {
-  font-size: 0.55rem;
-  font-weight: 800;
-  color: #94a3b8;
-  letter-spacing: 1px;
-}
-
-.round-pill-val {
-  font-size: 0.74rem;
-  font-weight: 900;
-  color: #a3e635;
-}
-
-/* ========================================================
-   2. MAIN ARENA DASHBOARD: 2-COLUMN LAYOUT
-======================================================== */
-
-.arena-dashboard-container {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 14px;
-  padding: 6px 20px 4px 20px;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-/* --- Left Column: Main Pitch, Pipeline & Ticker --- */
-.arena-main-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  justify-content: space-between;
-}
-
-/* Phase Header Bar with Live Countdown Timer */
-.arena-phase-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 2px;
-  height: 22px;
-}
-
-.phase-text-lime {
-  color: #a3e635;
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(163, 230, 53, 0.4);
-}
-
-.phase-text-gold {
-  color: #e5b842;
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.phase-timer-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.timer-icon {
-  color: #a3e635;
-  font-size: 0.8rem;
-}
-
-.timer-countdown {
-  color: #a3e635;
-  font-family: 'DIN Alternate', 'DIN Condensed', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 900;
-}
-
-.timer-label {
-  color: #64748b;
-  font-size: 0.62rem;
-  font-weight: 600;
-}
-
-/* --- Football Pitch Container (Matches user's green pitch image) --- */
-.arena-football-pitch {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 0;
   position: relative;
   background-color: #00a000;
-  background-image: url('/football-pitch.png');
+  background-image: url('/football-pitch-horizontal.png');
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: contain;
-  border-radius: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 35px rgba(0, 0, 0, 0.2);
-  padding: 8px 12px;
-  box-sizing: border-box;
-  overflow: hidden;
+  user-select: none;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Top Clash Zone / Duel Pitch Area --- */
-.pitch-clash-zone,
-.arena-pitch-box {
-  background: rgba(0, 24, 10, 0.65);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  padding: 8px 14px;
-  display: grid;
-  grid-template-columns: 110px 1fr auto;
-  gap: 12px;
-  align-items: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  flex-shrink: 0;
-  min-height: 150px;
-  max-height: 175px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.arena-meta-strip {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-/* 1. Left Panel: Caller's Card */
-.pitch-caller-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
+/* Arena Container that holds the 5 boxes directly on the pitch */
+.pitch-game-arena {
+  width: 100%;
   height: 100%;
-  width: 105px;
-}
-
-.caller-label-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 1px;
-}
-
-.caller-player-name {
-  font-size: 0.76rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.caller-badge {
-  font-size: 0.5rem;
-  font-weight: 900;
-  background: #e5b842;
-  color: #070d10;
-  padding: 1px 4px;
-  border-radius: 3px;
-  letter-spacing: 0.5px;
-}
-
-.caller-card-stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 130px;
-  width: 90px;
-}
-
-/* Stadium Hidden Card (Matching Reference Screenshot) */
-.stadium-hidden-card {
-  width: 88px;
-  height: 126px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #101c24 0%, #080f14 100%);
-  border: 1.5px solid rgba(163, 230, 53, 0.35);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hidden-card-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.hidden-card-monogram {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 1.9rem;
-  font-weight: 900;
-  color: #64748b;
-  line-height: 1;
-}
-
-.hidden-card-status {
-  font-size: 0.5rem;
-  font-weight: 800;
-  color: #64748b;
-  letter-spacing: 0.8px;
-}
-
-.hidden-card-lock {
-  font-size: 0.65rem;
-  opacity: 0.65;
-}
-
-/* Caller Revealed Showdown Card (Fits the 88x126 slot with zero overflow!) */
-.caller-showdown-card {
-  width: 88px;
-  height: 126px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #12202a 0%, #070e13 100%);
-  border: 1.5px solid #c5a059;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  background: transparent;
 }
 
-.caller-showdown-card.is-winner {
-  border-color: #a3e635;
-  box-shadow: 0 0 14px rgba(163, 230, 53, 0.55);
-}
-
-.caller-showdown-card.is-active {
-  border-color: #a3e635;
-}
-
-.caller-showdown-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 2px 5px;
-  z-index: 5;
-}
-
-.caller-showdown-ovr {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #e2c974;
-  line-height: 1;
-}
-
-.caller-showdown-pos {
-  font-size: 0.6rem;
-  font-weight: 800;
-  color: #cbd5e1;
-}
-
-.caller-showdown-photo-stage {
+/* ========================================================
+   BOX 1: Whose Turn (Top-Left)
+======================================================== */
+.pitch-hud-box-1 {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 24px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  z-index: 2;
-  overflow: hidden;
+  top: 16px;
+  left: 28px;
+  z-index: 30;
+  background: transparent;
 }
 
-.caller-showdown-photo {
-  height: 102px;
-  width: 100%;
-  object-fit: contain;
-  object-position: top center;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
-  -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-}
-
-.caller-showdown-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1px 4px 3px 4px;
-  background: rgba(5, 10, 14, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 5;
-}
-
-.caller-showdown-val {
-  font-family: 'DIN Alternate', 'DIN Condensed', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 900;
-  color: #a3e635;
-  line-height: 1;
-}
-
-.caller-showdown-name {
-  font-size: 0.54rem;
-  font-weight: 800;
-  color: #ffffff;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 80px;
-}
-
-.caller-stage-footnote {
-  font-size: 0.54rem;
-  color: #64748b;
+.pitch-turn-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
   font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* 2. Center Panel: The Call Showcase */
-.pitch-center-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0 12px;
-  height: 100%;
-  min-width: 0;
-}
-
-.the-call-label {
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: #7f93a4;
-  letter-spacing: 1.8px;
+  color: #ffffff;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  margin-bottom: 1px;
 }
 
-.the-call-hero-category {
+/* ========================================================
+   BOX 2: Round Number (Top-Center, e.g. 1/11)
+======================================================== */
+.pitch-hud-box-2 {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  text-align: center;
+  background: transparent;
+}
+
+.pitch-round-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 1.2px;
+}
+
+/* ========================================================
+   BOX 3: Each Player's Points (Top-Right)
+======================================================== */
+.pitch-hud-box-3 {
+  position: absolute;
+  top: 16px;
+  right: 28px;
+  z-index: 30;
+  background: transparent;
+}
+
+.pitch-scores-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 48px;
+  gap: 12px;
 }
 
-.call-hero-text {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 2.6rem;
-  font-weight: 900;
-  color: #a3e635;
-  letter-spacing: 2px;
-  line-height: 0.9;
-  text-shadow: 0 0 20px rgba(163, 230, 53, 0.65), 0 2px 6px rgba(0, 0, 0, 0.9);
+.pitch-player-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
 }
 
-.call-hero-text.choosing {
-  color: #e5b842;
-  font-size: 1.8rem;
-  text-shadow: 0 0 14px rgba(229, 184, 66, 0.5);
-}
-
-.the-call-description {
-  margin: 3px 0 6px 0;
-  color: #7f93a4;
-  font-size: 0.65rem;
-  line-height: 1.25;
+.score-player-name {
+  color: #e2e8f0;
   font-weight: 500;
 }
 
-.the-call-description p {
-  margin: 0;
-}
-
-.all-reveal-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 10px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  font-size: 0.58rem;
-  font-weight: 700;
-  color: #94a3b8;
-}
-
-.pill-lock {
-  font-size: 0.6rem;
-  opacity: 0.8;
-}
-
-/* 3. Right Panel: Opponents Response Matrix */
-.pitch-opponents-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 100%;
-}
-
-.opponents-matrix-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  max-width: 240px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.opponents-matrix-row::-webkit-scrollbar {
-  display: none;
-}
-
-.opponent-station {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.opponent-station-name {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #cbd5e1;
-  max-width: 52px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.opponent-station-name.is-you {
+.score-player-name.is-you {
   color: #a3e635;
-}
-
-.opponent-mini-card {
-  width: 48px;
-  height: 70px;
-  border-radius: 6px;
-  background: #0d1720;
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-  transition: all 0.2s ease;
-  overflow: hidden;
-}
-
-.opponent-mini-card.is-locked {
-  border-color: #a3e635;
-  box-shadow: 0 0 10px rgba(163, 230, 53, 0.35);
-}
-
-.mini-card-back {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.mini-card-xi {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #64748b;
-  line-height: 1;
-}
-
-.is-locked .mini-card-xi {
-  color: #a3e635;
-}
-
-.mini-card-check {
-  color: #a3e635;
-  font-size: 0.75rem;
-  font-weight: 900;
-}
-
-.mini-card-lock {
-  color: #64748b;
-  font-size: 0.6rem;
-}
-
-/* Opponent Showdown Mini Card: Formatted to fit inside the 48x70 box with no cropping! */
-.mini-showdown-card {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3px 2px;
-  background: linear-gradient(180deg, #101c24 0%, #060b0f 100%);
-  box-sizing: border-box;
-}
-
-.mini-showdown-card.is-winner {
-  background: linear-gradient(180deg, #12281a 0%, #060b0f 100%);
-  box-shadow: inset 0 0 8px rgba(163, 230, 53, 0.4);
-}
-
-.mini-photo-stage {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #14222c;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mini-photo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-}
-
-.mini-fallback-xi {
-  font-size: 0.75rem;
-  font-weight: 900;
-  color: #7e92a2;
-}
-
-.mini-played-stat {
-  font-family: 'DIN Alternate', 'DIN Condensed', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: #a3e635;
-  line-height: 1;
-}
-
-.mini-player-surname {
-  font-size: 0.5rem;
-  font-weight: 800;
-  color: #cbd5e1;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 44px;
-}
-
-.opponent-status-pill {
-  font-size: 0.52rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.status-locked {
-  color: #a3e635;
-}
-
-.status-your-turn {
-  color: #e5b842;
-  animation: pulseStatus 1.5s infinite;
-}
-
-.status-choosing {
-  color: #64748b;
-}
-
-@keyframes pulseStatus {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; filter: brightness(1.3); }
-}
-
-.opponents-matrix-counter {
-  font-size: 0.58rem;
-  font-weight: 600;
-  color: #64748b;
-  margin-top: 1px;
-}
-
-/* --- Caller Rotation Pipeline Banner --- */
-.caller-rotation-bar {
-  background: rgba(9, 15, 19, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 4px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 24px;
-  box-sizing: border-box;
-}
-
-.rotation-left-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.rotation-title {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.8px;
-}
-
-.rotation-subtitle {
-  font-size: 0.52rem;
-  color: #64748b;
-}
-
-.rotation-pipeline-nodes {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
-}
-
-.pipeline-node {
-  color: #94a3b8;
-}
-
-.pipeline-node.is-now {
-  color: #a3e635;
-  font-weight: 900;
-  text-shadow: 0 0 8px rgba(163, 230, 53, 0.6);
-}
-
-.pipeline-arrow {
-  color: #475569;
-  font-size: 0.58rem;
-}
-
-/* --- Last Round Ticker Bar --- */
-.last-round-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.62rem;
-  padding: 0 4px;
-  height: 18px;
-}
-
-.last-round-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.last-round-badge {
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.last-round-ticker {
-  color: #94a3b8;
   font-weight: 600;
 }
 
-.last-round-history-link {
-  color: #64748b;
+.score-player-points {
+  color: #ffffff;
+  font-size: 1.25rem;
   font-weight: 700;
-  cursor: pointer;
+}
+
+.score-divider {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
 }
 
 /* ========================================================
-   3. RIGHT SIDEBAR COLUMN: STANDINGS & RULES
+   BOX 4: ARENA - SELECTED CARDS (Center Field)
+   Shifted UP so it is never covered by the deck
 ======================================================== */
-
-.arena-sidebar-column {
-  width: 235px;
-  min-width: 215px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  justify-content: space-between;
-}
-
-/* --- Widget 1: THE STANDINGS --- */
-.standings-widget {
-  background: rgba(9, 15, 19, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.standings-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.standings-title {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 1px;
-}
-
-.standings-trophy {
-  font-size: 0.85rem;
-}
-
-.standings-sub-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.55rem;
-  font-weight: 800;
-  color: #64748b;
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 3px;
-}
-
-.standings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-height: 85px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-
-.standings-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  color: #cbd5e1;
-}
-
-.standings-row.is-you {
-  background: rgba(163, 230, 53, 0.12);
-  color: #f6e6b4;
-  font-weight: 800;
-  border: 1px solid rgba(229, 184, 66, 0.35);
-}
-
-.standings-row-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.standings-rank {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: #64748b;
-  width: 14px;
-}
-
-.standings-avatar {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #14222c;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.5rem;
-  font-weight: 800;
-  color: #cbd5e1;
-}
-
-.standings-name {
-  font-weight: 700;
-  max-width: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.standings-score {
-  font-family: 'DIN Alternate', 'DIN Condensed', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 900;
-  color: #ffffff;
-}
-
-.standings-footer {
-  font-size: 0.52rem;
-  color: #64748b;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 4px;
-  line-height: 1.25;
-}
-
-.standings-footer p {
-  margin: 0;
-}
-
-/* --- Widget 2: THE KEEPER EXCEPTION --- */
-.keeper-exception-widget {
-  background: rgba(9, 15, 19, 0.98);
-  border: 1px solid rgba(163, 230, 53, 0.22);
-  border-radius: 10px;
-  padding: 8px 12px;
-}
-
-.keeper-header {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 3px;
-}
-
-.keeper-shield {
-  font-size: 0.75rem;
-}
-
-.keeper-title {
-  font-family: 'DIN Alternate', 'DIN Condensed', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 900;
-  color: #a3e635;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.keeper-body {
-  font-size: 0.58rem;
-  color: #94a3b8;
-  line-height: 1.3;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.keeper-body p {
-  margin: 0;
-}
-
-.keeper-body strong {
-  color: #cbd5e1;
-}
-
-/* ========================================================
-   4. BOTTOM TRAY: YOUR HAND (FLOODLIGHT CARDS & LOCK-IN)
-======================================================== */
-
-.hand-tray-container {
-  width: 100%;
-  background: rgba(0, 24, 10, 0.65);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  padding: 4px 12px 6px 12px;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  z-index: 10;
-  height: 250px;
-  max-height: 255px;
-}
-
-.hand-tray-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 4px 4px 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 4px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.hand-header-left {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.hand-main-title {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 900;
-  letter-spacing: 1.2px;
-  color: #ffffff;
-  text-transform: uppercase;
-}
-
-.hand-count-meta {
-  display: flex;
-  flex-direction: column;
-}
-
-.hand-count-bold {
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: #cbd5e1;
-}
-
-.hand-count-sub {
-  font-size: 0.54rem;
-  color: #64748b;
-}
-
-.hand-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.hand-sort-pill {
-  font-size: 0.64rem;
-  font-weight: 700;
-  color: #94a3b8;
-  padding: 4px 10px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-}
-
-.hand-gk-toggle-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.64rem;
-  font-weight: 700;
-  color: #64748b;
-}
-
-.hand-gk-toggle-box.is-ready {
-  color: #a3e635;
-}
-
-.gk-switch-ui {
-  width: 28px;
-  height: 14px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.gk-switch-ui.active {
-  background: rgba(163, 230, 53, 0.35);
-  border: 1px solid #a3e635;
-}
-
-.gk-switch-knob {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #64748b;
+.pitch-hud-box-4 {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: all 0.2s ease;
+  top: 55px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+  background: transparent;
 }
 
-.gk-switch-ui.active .gk-switch-knob {
-  left: 15px;
+.arena-called-category-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.category-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #cbd5e1;
+  text-transform: uppercase;
+}
+
+.category-hero {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.95rem;
+  font-weight: 700;
+  color: #a3e635;
+  letter-spacing: 1.5px;
+}
+
+.arena-cards-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+}
+
+.arena-player-card-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.arena-player-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.arena-caller-badge {
+  background: #e5b842;
+  color: #070d10;
+  font-size: 0.52rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.arena-card-holder {
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.arena-card-holder.is-winner {
+  transform: scale(1.05);
+  outline: 3px solid #a3e635;
+  border-radius: 12px;
+}
+
+.arena-card-placeholder {
+  width: 136px;
+  height: 195px;
+  border-radius: 12px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.placeholder-icon {
+  font-size: 1.7rem;
+}
+
+.placeholder-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.arena-card-showdown-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #a3e635;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arena-winner-tag {
   background: #a3e635;
-  box-shadow: 0 0 6px #a3e635;
+  color: #051408;
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
 }
 
-/* The Big Vibrant Neon Green Lock-In Action Button */
-.hand-lock-in-btn {
+/* ========================================================
+   BOX 5: PLAYER HAND (Curved Fan Deck at Bottom)
+======================================================== */
+.pitch-hud-box-5 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 255px;
+  z-index: 40;
+  pointer-events: none;
+  background: transparent;
+}
+
+.pitch-fanned-deck-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.pitch-fanned-deck {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 225px;
+  width: 100%;
+  background: transparent;
+}
+
+.fanned-card-item {
+  position: absolute;
+  bottom: -4px;
+  cursor: pointer;
+  transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: bottom center;
+}
+
+.fanned-card-item.is-selected {
+  outline: 3px solid #a3e635;
+  border-radius: 12px;
+}
+
+/* Floating Action Overlay above the selected card */
+.pitch-action-overlay {
+  position: absolute;
+  top: -55px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 200;
+  animation: floatIn 0.2s ease-out;
+  background: transparent;
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pitch-call-stat-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+}
+
+.call-prompt-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.call-stat-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat-choice-pill {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1.5px solid #a3e635;
+  color: #a3e635;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stat-choice-pill:hover,
+.stat-choice-pill.is-active {
+  background: #a3e635;
+  color: #070d10;
+  transform: translateY(-2px);
+}
+
+.pitch-lock-in-action-btn {
   background: #a3e635;
   color: #070d10;
   border: none;
-  border-radius: 6px;
-  padding: 6px 16px;
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 900;
-  letter-spacing: 0.8px;
+  border-radius: 8px;
+  padding: 8px 22px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 3px 12px rgba(163, 230, 53, 0.45);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  transition: transform 0.18s ease, filter 0.18s ease;
 }
 
-.hand-lock-in-btn.is-disabled {
-  background: #1c272a;
-  color: #64748b;
-  box-shadow: none;
-  cursor: not-allowed;
+.pitch-lock-in-action-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  filter: brightness(1.08);
 }
 
-.hand-lock-in-btn.is-active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 16px rgba(163, 230, 53, 0.7);
-  filter: brightness(1.1);
-}
-
-/* Horizontal Cards Scroll Ribbon */
-.hand-cards-scroll {
+/* ========================================================
+   MODALS (Game Over Modal)
+======================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 2px 6px 2px;
-  align-items: flex-start;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(163, 230, 53, 0.25) transparent;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
 }
 
-.hand-cards-scroll::-webkit-scrollbar {
-  height: 5px;
+.game-over-modal {
+  background: radial-gradient(ellipse at 50% 30%, #1e333e 0%, #111d24 100%);
+  border: 2px solid #e5b842;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  max-width: 460px;
+  width: 90%;
 }
 
-.hand-cards-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(163, 230, 53, 0.25);
-  border-radius: 3px;
+.winner-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  color: #e5b842;
+  font-weight: 700;
+  margin: 12px 0;
 }
 
-.hand-card-column {
+.leaderboard-list {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
-  transition: transform 0.18s ease;
+  gap: 8px;
 }
 
-.hand-card-column.is-selected {
-  transform: translateY(-4px);
-}
-
-/* Card sizing strictly calibrated for hand ribbon */
-.hand-card-column .floodlight-card.compact,
-.hand-card-column .duel-card.compact {
-  width: 136px !important;
-  height: 195px !important;
-  border-radius: 12px !important;
-}
-
-.hand-card-column .floodlight-player-stage {
-  height: 130px !important;
-}
-
-.hand-card-column .floodlight-player-photo {
-  height: 125px !important;
-}
-
-.hand-card-column .floodlight-ovr-number {
-  font-size: 1.55rem !important;
-}
-
-.hand-card-column .floodlight-position {
-  font-size: 0.65rem !important;
-}
-
-.hand-card-column .floodlight-series-edition {
-  font-size: 0.52rem !important;
-}
-
-.hand-card-column .floodlight-player-name {
-  font-size: 0.9rem !important;
-}
-
-.hand-card-column .floodlight-subtitle {
-  font-size: 0.5rem !important;
-  margin-bottom: 3px !important;
-}
-
-.hand-card-column .floodlight-stat-val {
-  font-size: 0.88rem !important;
-}
-
-.hand-card-column .floodlight-stat-lbl {
-  font-size: 0.5rem !important;
-}
-
-/* Top Tag Strip above each card in the hand */
-.card-ribbon-tag {
+.leaderboard-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  width: 136px;
-  font-size: 0.52rem;
-  font-weight: 800;
-  color: #94a3b8;
-  padding: 1px 3px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.card-ribbon-tag.tag-selected {
-  color: #a3e635;
-}
-
-.tag-check {
-  color: #a3e635;
-  font-weight: 900;
-}
-
-.tag-val-lime {
-  color: #a3e635;
-  font-weight: 900;
-  text-shadow: 0 0 8px rgba(163, 230, 53, 0.6);
-}
-
-.tag-val {
+  padding: 8px 14px;
+  background: rgba(10, 18, 24, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
   color: #ffffff;
-  font-weight: 800;
-}
-
-.tag-playable {
-  color: #64748b;
-  font-size: 0.48rem;
-  font-weight: 700;
 }

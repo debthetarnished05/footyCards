@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { GameCard, AnyBattleStat } from '../types/game';
 import { CardView } from './CardView';
 import '../styles/cards.css';
@@ -24,27 +24,22 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
   const validCards = hand.filter((c): c is GameCard => c !== null);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedGkStat, setSelectedGkStat] = useState<AnyBattleStat | null>(null);
+  const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
 
-  // Active category abbreviation or label
-  const currentCategory: AnyBattleStat = activeCategory || 'rating';
-  const categoryLabel = (activeCategory || 'rating').toUpperCase().slice(0, 3);
+  // Responsive full-width viewport tracking
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
 
-  // Sort cards by active category descending (or by rating if no category)
-  const sortedCards = [...validCards].sort((a, b) => {
-    const valA = a.position === 'GK' && activeCategory && activeCategory !== 'rating'
-      ? Math.max(...Object.values(a.stats))
-      : a.stats[currentCategory] ?? a.stats.rating ?? 0;
-    const valB = b.position === 'GK' && activeCategory && activeCategory !== 'rating'
-      ? Math.max(...Object.values(b.stats))
-      : b.stats[currentCategory] ?? b.stats.rating ?? 0;
-    return valB - valA;
-  });
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const activeCard = selectedCardId
     ? validCards.find((c) => c.cardId === selectedCardId) ?? null
     : null;
-
-  const hasGkInHand = validCards.some((c) => c.position === 'GK');
 
   const handleCardClick = (card: GameCard) => {
     if (selectedCardId === card.cardId) {
@@ -53,7 +48,7 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
     } else {
       setSelectedCardId(card.cardId);
       if (card.position === 'GK') {
-        setSelectedGkStat('rating');
+        setSelectedGkStat(activeCategory || 'rating');
       } else {
         setSelectedGkStat(null);
       }
@@ -69,160 +64,101 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
     }
   };
 
-  const handleLockInAction = () => {
+  const handleLockIn = () => {
     if (!activeCard) return;
-
     if (isMyTurnToCall) {
       const statToCall = activeCard.position === 'GK' ? 'rating' : (selectedGkStat || 'rating');
       onCallStat(activeCard.cardId, statToCall);
     } else if (isMyTurnToRespond) {
-      if (activeCard.position === 'GK') {
-        onSubmitCard(activeCard.cardId, selectedGkStat || 'rating');
-      } else {
-        onSubmitCard(activeCard.cardId);
-      }
+      onSubmitCard(activeCard.cardId, selectedGkStat || undefined);
     }
   };
 
   if (validCards.length === 0) {
-    return (
-      <div className="hand-tray-container">
-        <div className="hand-tray-header">
-          <span className="hand-tray-title">YOUR HAND</span>
-          <span className="duel-action-prompt muted">No cards remaining</span>
-        </div>
-      </div>
-    );
+    return null;
   }
 
-  // Generate dynamic text for the Lock In button
-  const getLockInButtonText = () => {
-    if (!activeCard) {
-      if (isMyTurnToCall) return 'Select a card to lead';
-      if (isMyTurnToRespond) return 'Select a card to lock in 🔒';
-      return 'Waiting for turn...';
-    }
+  const total = validCards.length;
+  const mid = (total - 1) / 2;
 
-    const lastName = activeCard.name.split(' ').pop() || activeCard.name;
+  // Spread across full screen width (taking ~92% of viewport width)
+  const availableWidth = Math.min(1680, Math.max(680, windowWidth * 0.92));
+  // Generous gap so cards don't overlap too much
+  const spread = total > 1 ? Math.min(132, availableWidth / (total - 1)) : 0;
+  // Natural gentle fan curvature across wide span
+  const maxAngle = Math.min(16, total * 1.8);
 
-    if (isMyTurnToCall) {
-      if (activeCard.position === 'GK') {
-        return `Lock in ${lastName} · Call OVR (${activeCard.stats.rating}) 🔒`;
-      }
-      const chosenStat = selectedGkStat || 'rating';
-      const statVal = activeCard.stats[chosenStat] ?? activeCard.stats.rating;
-      return `Lock in ${lastName} · ${statVal} ${chosenStat.toUpperCase().slice(0, 3)} 🔒`;
-    }
-
-    if (isMyTurnToRespond) {
-      if (activeCard.position === 'GK') {
-        const statToUse = selectedGkStat || 'rating';
-        const statVal = activeCard.stats[statToUse] ?? 0;
-        return `Lock in ${lastName} · TRUMP ${statVal} ${statToUse.toUpperCase().slice(0, 3)} 🔒`;
-      }
-      const effectiveVal = activeCard.stats[currentCategory] ?? 0;
-      return `Lock in ${lastName} · ${effectiveVal} ${categoryLabel} 🔒`;
-    }
-
-    return `Locked in · ${lastName}`;
-  };
-
-  const isButtonEnabled = (isMyTurnToCall || isMyTurnToRespond) && !!activeCard;
+  // Stat choices for caller if a card is selected
+  const callerStats: AnyBattleStat[] = activeCard?.position === 'GK'
+    ? ['rating', 'diving', 'handling', 'kicking', 'reflexes', 'speed', 'positioning']
+    : ['rating', 'pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
 
   return (
-    <div className="hand-tray-container">
-      {/* 1. Header Bar: Title, Count, Sort, GK Trump Toggle, and Big Green Lock-in Button */}
-      <div className="hand-tray-header">
-        <div className="hand-header-left">
-          <span className="hand-main-title">YOUR HAND</span>
-          <div className="hand-count-meta">
-            <span className="hand-count-bold">{validCards.length} cards available</span>
-            <span className="hand-count-sub">11 dealt · {11 - validCards.length} played · 1 per round</span>
-          </div>
-        </div>
-
-        <div className="hand-header-right">
-          <div className="hand-sort-pill">
-            <span>Sort: {activeCategory ? activeCategory.toUpperCase() : 'PACE'} ↓</span>
-          </div>
-
-          <div className={`hand-gk-toggle-box ${hasGkInHand ? 'is-ready' : ''}`}>
-            <span className="gk-toggle-text">
-              GK trump · {hasGkInHand ? 'Ready' : 'Off'}
-            </span>
-            <div className={`gk-switch-ui ${hasGkInHand ? 'active' : ''}`}>
-              <div className="gk-switch-knob" />
+    <div className="pitch-fanned-deck-wrapper">
+      {/* Floating Action Overlay when a card is selected */}
+      {activeCard && (isMyTurnToCall || isMyTurnToRespond) && (
+        <div className="pitch-action-overlay">
+          {isMyTurnToCall ? (
+            <div className="pitch-call-stat-actions">
+              <span className="call-prompt-text">
+                Choose stat for {activeCard.name.split(' ').pop()}:
+              </span>
+              <div className="call-stat-pills">
+                {callerStats.map((st) => (
+                  <button
+                    key={st}
+                    className={`stat-choice-pill ${selectedGkStat === st ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setSelectedGkStat(st);
+                      onCallStat(activeCard.cardId, st);
+                    }}
+                  >
+                    {st.toUpperCase().slice(0, 3)} ({activeCard.stats[st] ?? '?'})
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-
-          <button
-            className={`hand-lock-in-btn ${isButtonEnabled ? 'is-active' : 'is-disabled'}`}
-            disabled={!isButtonEnabled}
-            onClick={handleLockInAction}
-          >
-            {getLockInButtonText()}
-          </button>
+          ) : (
+            <button className="pitch-lock-in-action-btn" onClick={handleLockIn}>
+              Lock In {activeCard.name.split(' ').pop()} 🔒
+            </button>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* 2. Horizontal Cards Ribbon */}
-      <div className="hand-cards-scroll">
-        {sortedCards.map((card) => {
+      {/* The Fanned Deck of Cards taking full screen width */}
+      <div className="pitch-fanned-deck">
+        {validCards.map((card, idx) => {
+          const offset = idx - mid;
+          const rotateDeg = total > 1 ? (offset / (mid || 1)) * (maxAngle / 2) : 0;
+          const translateY = Math.pow(Math.abs(offset) / (mid || 1), 1.5) * 20;
+          const translateX = offset * spread;
           const isSelected = card.cardId === activeCard?.cardId;
-          const isGk = card.position === 'GK';
-
-          // Effective value for this card against the active category
-          let topStatVal: number | string = card.stats[currentCategory] ?? card.stats.rating ?? '-';
-          let topStatLbl = categoryLabel;
-
-          if (isGk) {
-            if (isSelected && selectedGkStat) {
-              topStatVal = card.stats[selectedGkStat] ?? '-';
-              topStatLbl = selectedGkStat.toUpperCase().slice(0, 3);
-            } else if (activeCategory && activeCategory !== 'rating') {
-              const bestVal = Math.max(...Object.values(card.stats));
-              topStatVal = bestVal;
-              topStatLbl = 'TRUMP';
-            }
-          }
+          const isHovered = card.cardId === hoveredCardId;
 
           return (
             <div
               key={card.cardId}
-              className={`hand-card-column ${isSelected ? 'is-selected' : ''}`}
+              className={`fanned-card-item ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''}`}
+              style={{
+                transform: isSelected
+                  ? `translate(${translateX}px, ${translateY - 55}px) rotate(0deg) scale(1.15)`
+                  : isHovered
+                  ? `translate(${translateX}px, ${translateY - 42}px) rotate(0deg) scale(1.12)`
+                  : `translate(${translateX}px, ${translateY}px) rotate(${rotateDeg}deg)`,
+                zIndex: isSelected ? 150 : isHovered ? 100 : idx + 10,
+              }}
+              onMouseEnter={() => setHoveredCardId(card.cardId)}
+              onMouseLeave={() => setHoveredCardId(null)}
+              onClick={() => handleCardClick(card)}
             >
-              {/* Top Tag Pill above each card */}
-              <div className={`card-ribbon-tag ${isSelected ? 'tag-selected' : ''}`}>
-                {isSelected ? (
-                  <>
-                    <span className="tag-check">✓ SELECTED</span>
-                    <span className="tag-val-lime">{topStatVal} {topStatLbl}</span>
-                    <span className="tag-playable">PLAYABLE</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="tag-val">{topStatVal} {topStatLbl}</span>
-                    <span className="tag-playable">
-                      {isGk ? 'GK · OPTIONAL TRUMP 6 STATS' : 'PLAYABLE'}
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* The Floodlight Series Card */}
               <CardView
                 card={card}
                 isCompact={true}
                 isSelected={isSelected}
                 isClickable={true}
-                highlightedStat={
-                  isMyTurnToCall && isGk ? 'rating' : (isSelected && selectedGkStat ? selectedGkStat : activeCategory)
-                }
-                allowStatSelection={
-                  isSelected &&
-                  (isMyTurnToCall || (isMyTurnToRespond && isGk))
-                }
-                onCardClick={() => handleCardClick(card)}
+                highlightedStat={isSelected && selectedGkStat ? selectedGkStat : activeCategory}
+                allowStatSelection={isSelected && (isMyTurnToCall || (isMyTurnToRespond && card.position === 'GK'))}
                 onSelectStat={(stat) => handleStatSelect(card, stat)}
               />
             </div>

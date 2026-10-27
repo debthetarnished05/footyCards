@@ -184,7 +184,7 @@ export const CardView: React.FC<CardViewProps> = ({
           onClick={(e) => handleStatClick(e, 'rating')}
           title="Overall Rating (OVR)"
         >
-          <span className="floodlight-ovr-number">{hideStats ? '--' : card.stats.rating}</span>
+          <span className="floodlight-ovr-number">{hideStats ? '?' : (card.stats.rating ?? '?')}</span>
           <span className="floodlight-position">{card.position}</span>
         </div>
 
@@ -236,7 +236,7 @@ export const CardView: React.FC<CardViewProps> = ({
         <div className="floodlight-stats-row">
           {statsList.map(({ key, label }) => {
             const isHighlighted = highlightedStat === key;
-            const statVal = hideStats ? '?' : (card.stats[key] ?? '-');
+            const statVal = hideStats ? '?' : (card.stats[key] ?? '?');
             const isSelectable = allowStatSelection;
 
             return (

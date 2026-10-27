@@ -6,7 +6,6 @@
   background: linear-gradient(145deg, #222e42 0%, #151d2a 60%, #0d131c 100%);
   border: 2px solid var(--border-color);
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -26,13 +25,11 @@
 .footy-card.clickable:hover {
   transform: translateY(-8px);
   border-color: var(--accent-gold);
-  filter: drop-shadow(0 0 12px rgba(229, 184, 66, 0.35));
 }
 
 .footy-card.selected {
   transform: translateY(-12px);
   border-color: var(--accent-green);
-  filter: drop-shadow(0 0 16px rgba(0, 210, 106, 0.6));
 }
 
 /* Inner faceted surface layer */
@@ -82,7 +79,6 @@
   color: var(--accent-gold);
   line-height: 0.9;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
 }
 
 .card-position-text {
@@ -105,7 +101,6 @@
   object-position: bottom center;
   z-index: 2;
   pointer-events: none;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
 }
 
 /* Trump Badge for Goalkeepers */
@@ -146,7 +141,6 @@
   max-width: 170px;
   margin-bottom: 5px;
   letter-spacing: 0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* Horizontal 6-Column Stat Matrix */
@@ -172,7 +166,6 @@
 
 .stat-column.active-category {
   background: rgba(229, 184, 66, 0.25);
-  box-shadow: inset 0 0 0 1px var(--accent-gold);
 }
 
 .stat-column.selectable:hover {
@@ -208,14 +201,12 @@
   height: 14px;
   object-fit: cover;
   border-radius: 2px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .card-badge-club {
   width: 20px;
   height: 20px;
   object-fit: contain;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
 /* Hand Tray Scrolling */
@@ -266,11 +257,10 @@
   background: radial-gradient(circle at 50% 20%, #162633 0%, #0d1720 55%, #060b0f 100%);
   border: 1.5px solid #c5a059; /* Warm champagne gold metallic border (Santiago Vega style) */
   border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   user-select: none;
   display: flex;
   flex-direction: column;
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, border-color 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -284,14 +274,12 @@
 .duel-card.clickable:hover {
   transform: translateY(-6px);
   border-color: #e2c974;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.85), 0 0 14px rgba(226, 201, 116, 0.35);
 }
 
 .floodlight-card.selected,
 .duel-card.selected {
   transform: translateY(-10px) scale(1.02);
   border: 2px solid #a3e635 !important; /* Electric neon lime green border (Malik Diallo style) */
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 20px rgba(163, 230, 53, 0.55);
 }
 
 .floodlight-card.selected .floodlight-ovr-number,
@@ -302,7 +290,6 @@
 .floodlight-card.is-gk,
 .duel-card.is-gk {
   border-color: #c084fc;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 12px rgba(192, 132, 252, 0.35);
 }
 
 /* Compact Scaling for Multi-player Arena Duels */
@@ -434,29 +421,26 @@
 }
 
 .floodlight-ovr-number {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', -apple-system, sans-serif;
+  font-family: 'Outfit', 'Rajdhani', sans-serif;
   font-size: 2.35rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #e2c974;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
   line-height: 0.88;
 }
 
 .floodlight-position {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #cbd5e1;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   margin-top: 3px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .floodlight-ovr-box.active-stat .floodlight-ovr-number {
   color: #a3e635;
-  text-shadow: 0 0 12px rgba(163, 230, 53, 0.85);
 }
 
 .floodlight-header-right {
@@ -473,14 +457,14 @@
   color: rgba(255, 255, 255, 0.55);
   letter-spacing: 1px;
   text-transform: uppercase;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .floodlight-gk-pill {
   background: #f59e0b;
   color: #0b151a;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.55rem;
-  font-weight: 900;
+  font-weight: 700;
   padding: 1px 5px;
   border-radius: 4px;
   letter-spacing: 0.5px;
@@ -506,7 +490,6 @@
   width: 100%;
   object-fit: contain;
   object-position: top center;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.85));
   -webkit-mask-image: linear-gradient(to bottom, black 72%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 72%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
 }
@@ -525,28 +508,28 @@
 }
 
 .floodlight-player-name {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', -apple-system, sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1.25rem;
-  font-weight: 900;
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.1;
   margin-bottom: 3px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
 .floodlight-subtitle {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #7f93a4;
-  letter-spacing: 1.1px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 5px;
 }
@@ -564,7 +547,6 @@
   height: 10px;
   object-fit: cover;
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .floodlight-country-code {
@@ -615,28 +597,27 @@
 }
 
 .floodlight-stat-val {
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', -apple-system, sans-serif;
+  font-family: 'Outfit', 'Rajdhani', sans-serif;
   font-size: 1.16rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #ffffff;
   line-height: 1;
   margin-bottom: 2px;
-  transition: color 0.15s ease, text-shadow 0.15s ease;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  transition: color 0.15s ease;
 }
 
 .floodlight-stat-lbl {
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #7f93a4;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
 }
 
 /* Highlighted / Active Battle Category (Malik Diallo Neon Green Style) */
 .floodlight-stat-col.active-stat .floodlight-stat-val {
   color: #a3e635;
-  text-shadow: 0 0 10px rgba(163, 230, 53, 0.85);
 }
 
 .floodlight-stat-col.active-stat .floodlight-stat-lbl {
@@ -678,18 +659,16 @@
 .floodlight-back-emblem {
   width: 85px;
   height: 85px;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
 }
 
 .floodlight-back-brand {
   margin-top: 12px;
-  font-family: 'DIN Alternate', 'DIN Condensed', 'Impact', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #c5a059;
   letter-spacing: 2.2px;
   text-transform: uppercase;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
 .floodlight-back-footer {
@@ -766,7 +745,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.2s ease;
 }
@@ -774,7 +752,6 @@
 .cascading-tab-row:hover {
   transform: translateY(-4px) scale(1.02);
   filter: brightness(1.25);
-  box-shadow: 0 -4px 12px rgba(229, 184, 66, 0.4);
 }
 
 .cascading-tab-text {
@@ -785,20 +762,21 @@
 }
 
 .cascading-tab-name {
+  font-family: 'Outfit', sans-serif;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 700;
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .cascading-tab-sub {
+  font-family: 'Outfit', sans-serif;
   font-size: 0.58rem;
-  font-weight: 700;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -808,8 +786,9 @@
 }
 
 .cascading-tab-ovr {
+  font-family: 'Outfit', 'Rajdhani', sans-serif;
   font-size: 0.85rem;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--accent-gold);
   background: rgba(0, 0, 0, 0.45);
   padding: 1px 5px;
@@ -850,9 +829,10 @@
 .duel-action-btn {
   width: 100%;
   padding: 8px 12px;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.8px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   border-radius: 8px;
   cursor: pointer;
@@ -862,7 +842,6 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 .duel-action-btn.gold {
@@ -873,7 +852,6 @@
 
 .duel-action-btn.gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(229, 184, 66, 0.6);
   filter: brightness(1.1);
 }
 

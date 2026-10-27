@@ -87,28 +87,26 @@ export class GameEngine {
       : Object.keys(this.state.submissions).reduce((acc, pid) => {
           if (pid === forPlayerId) {
             acc[pid] = this.state.submissions[pid];
-          } else if (pid === this.state.callerId) {
-            const callerSub = this.state.submissions[pid];
-            if (callerSub) {
+          } else {
+            const sub = this.state.submissions[pid];
+            if (sub && sub.card) {
               acc[pid] = {
                 card: {
-                  cardId: callerSub.card.cardId,
-                  name: callerSub.card.name,
-                  club: callerSub.card.club,
-                  nationality: callerSub.card.nationality,
-                  position: callerSub.card.position,
-                  image: callerSub.card.image,
-                  clubLogo: callerSub.card.clubLogo,
-                  countryFlag: callerSub.card.countryFlag,
-                  stats: {}, // STRIPPED: No stat numbers exposed over network!
+                  cardId: sub.card.cardId,
+                  name: sub.card.name,
+                  club: sub.card.club,
+                  nationality: sub.card.nationality,
+                  position: sub.card.position,
+                  image: sub.card.image,
+                  clubLogo: sub.card.clubLogo,
+                  countryFlag: sub.card.countryFlag,
+                  stats: {},
                 },
-                statUsed: callerSub.statUsed,
+                statUsed: sub.statUsed,
               };
             } else {
               acc[pid] = { submitted: true };
             }
-          } else {
-            acc[pid] = { submitted: true };
           }
           return acc;
         }, {} as Record<string, any>);
