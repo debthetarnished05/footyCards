@@ -8,30 +8,52 @@ interface CardViewProps {
   isSelected?: boolean;
   highlightedStat?: AnyBattleStat | null;
   allowStatSelection?: boolean;
-  hideStats?: boolean; // When true: hides stat numbers for opponents before showdown
+  hideStats?: boolean;
   onSelectStat?: (stat: AnyBattleStat) => void;
   onCardClick?: () => void;
   isCompact?: boolean;
 }
+
+export const getCountryCode = (country: string = ''): string => {
+  const map: Record<string, string> = {
+    'Spain': 'ES',
+    'France': 'FR',
+    'Argentina': 'ARG',
+    'Portugal': 'POR',
+    'Brazil': 'BRA',
+    'England': 'ENG',
+    'Germany': 'GER',
+    'Netherlands': 'NED',
+    'Belgium': 'BEL',
+    'Italy': 'ITA',
+    'Croatia': 'CRO',
+    'Poland': 'POL',
+    'Norway': 'NOR',
+    'Uruguay': 'URU',
+    'Senegal': 'SEN',
+    'Egypt': 'EGY',
+  };
+  return map[country] || (country.length <= 3 ? country.toUpperCase() : country.slice(0, 3).toUpperCase()) || 'FC';
+};
 
 export const getPositionColor = (pos: string) => {
   switch (pos) {
     case 'ST':
     case 'LW':
     case 'RW':
-      return { bg: '#7f1d1d', border: '#b91c1c', accent: '#fca5a5' }; // Crimson
+      return { bg: '#7f1d1d', border: '#b91c1c', accent: '#fca5a5' };
     case 'CM':
     case 'CDM':
     case 'CAM':
     case 'LM':
     case 'RM':
-      return { bg: '#854d0e', border: '#ca8a04', accent: '#fde047' }; // Amber/Gold
+      return { bg: '#854d0e', border: '#ca8a04', accent: '#fde047' };
     case 'CB':
     case 'RB':
     case 'LB':
-      return { bg: '#115e59', border: '#14b8a6', accent: '#5eead4' }; // Teal/Emerald
+      return { bg: '#115e59', border: '#14b8a6', accent: '#5eead4' };
     case 'GK':
-      return { bg: '#581c87', border: '#a855f7', accent: '#d8b4fe' }; // Royal Purple
+      return { bg: '#581c87', border: '#a855f7', accent: '#d8b4fe' };
     default:
       return { bg: '#1e293b', border: '#475569', accent: '#cbd5e1' };
   }
@@ -62,23 +84,40 @@ export const CardBackView: React.FC<{
   className?: string;
   isCompact?: boolean;
   onClick?: () => void;
-}> = ({ remainingCount, label = 'FOOTY DUEL', className = '', isCompact = false, onClick }) => {
+}> = ({ remainingCount, label = 'FLOODLIGHT SERIES', className = '', isCompact = false, onClick }) => {
   return (
-    <div className={`card-back-container ${isCompact ? 'compact' : ''} ${className}`} onClick={onClick}>
-      <div className="card-back-inner-frame">
-        <svg viewBox="0 0 100 100" className="card-back-compass">
-          <circle cx="50" cy="50" r="34" fill="none" stroke="#e5b842" strokeWidth="1.2" opacity="0.6"/>
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#e5b842" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.4"/>
-          {/* 4-pointed gold compass star */}
-          <polygon points="50,12 54,46 88,50 54,54 50,88 46,54 12,50 46,46" fill="none" stroke="#e5b842" strokeWidth="1.6"/>
-          <polygon points="50,20 53,47 80,50 53,53 50,80 47,53 20,50 47,47" fill="#e5b842" opacity="0.25"/>
-          <circle cx="50" cy="50" r="3" fill="#e5b842"/>
-        </svg>
-        <span className="card-back-brand">{label}</span>
-        {typeof remainingCount === 'number' && (
-          <span className="card-back-badge">{remainingCount} CARDS</span>
-        )}
+    <div className={`floodlight-card duel-card card-back ${isCompact ? 'compact' : ''} ${className}`} onClick={onClick}>
+      {/* Stadium floodlights glow */}
+      <div className="floodlight-stadium-lights">
+        <div className="floodlight-beam beam-left" />
+        <div className="floodlight-beam beam-right" />
+        <div className="floodlight-halo" />
       </div>
+
+      <div className="floodlight-header-row">
+        <div className="floodlight-ovr-box">
+          <span className="floodlight-ovr-number" style={{ fontSize: isCompact ? '1.1rem' : '1.4rem' }}>XI</span>
+          <span className="floodlight-position">SERIES</span>
+        </div>
+        <span className="floodlight-series-edition">XI / 26</span>
+      </div>
+
+      <div className="floodlight-back-center">
+        <svg viewBox="0 0 100 100" className="floodlight-back-emblem">
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#c5a059" strokeWidth="1.2" opacity="0.6"/>
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#c5a059" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.4"/>
+          <polygon points="50,14 54,46 86,50 54,54 50,86 46,54 14,50 46,46" fill="none" stroke="#c5a059" strokeWidth="1.6"/>
+          <polygon points="50,22 53,47 78,50 53,53 50,78 47,53 22,50 47,47" fill="#c5a059" opacity="0.25"/>
+          <circle cx="50" cy="50" r="3" fill="#c5a059"/>
+        </svg>
+        <span className="floodlight-back-brand">{label}</span>
+      </div>
+
+      {typeof remainingCount === 'number' && (
+        <div className="floodlight-back-footer">
+          <span className="floodlight-back-count">{remainingCount} CARDS</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -95,26 +134,24 @@ export const CardView: React.FC<CardViewProps> = ({
   isCompact = false,
 }) => {
   const isGk = card.position === 'GK';
-  const posTheme = getPositionColor(card.position);
+  const countryCode = getCountryCode(card.nationality);
 
   const statsList: { key: AnyBattleStat; label: string }[] = isGk
     ? [
-        { key: 'rating', label: 'RATING' },
-        { key: 'diving', label: 'DIVING' },
-        { key: 'handling', label: 'HANDLING' },
-        { key: 'kicking', label: 'KICKING' },
-        { key: 'reflexes', label: 'REFLEXES' },
-        { key: 'speed', label: 'SPEED' },
-        { key: 'positioning', label: 'POSITIONING' },
+        { key: 'diving', label: 'DIV' },
+        { key: 'handling', label: 'HAN' },
+        { key: 'kicking', label: 'KIC' },
+        { key: 'reflexes', label: 'REF' },
+        { key: 'speed', label: 'SPD' },
+        { key: 'positioning', label: 'POS' },
       ]
     : [
-        { key: 'rating', label: 'OVERALL' },
-        { key: 'pace', label: 'PACE' },
-        { key: 'shooting', label: 'SHOOTING' },
-        { key: 'passing', label: 'PASSING' },
-        { key: 'dribbling', label: 'DRIBBLING' },
-        { key: 'defending', label: 'DEFENDING' },
-        { key: 'physical', label: 'PHYSICAL' },
+        { key: 'pace', label: 'PAC' },
+        { key: 'shooting', label: 'SHO' },
+        { key: 'passing', label: 'PAS' },
+        { key: 'dribbling', label: 'DRI' },
+        { key: 'defending', label: 'DEF' },
+        { key: 'physical', label: 'PHY' },
       ];
 
   const handleStatClick = (e: React.MouseEvent, statKey: AnyBattleStat) => {
@@ -126,82 +163,95 @@ export const CardView: React.FC<CardViewProps> = ({
     }
   };
 
+  const isOvrHighlighted = highlightedStat === 'rating';
+
   return (
     <div
-      className={`duel-card ${isGk ? 'is-gk' : ''} ${isClickable ? 'clickable' : ''} ${isSelected ? 'selected' : ''} ${isCompact ? 'compact' : ''}`}
-      style={{ borderColor: isSelected ? 'var(--accent-gold)' : posTheme.border }}
+      className={`floodlight-card duel-card ${isGk ? 'is-gk' : ''} ${isClickable ? 'clickable' : ''} ${isSelected ? 'selected' : ''} ${isCompact ? 'compact' : ''}`}
       onClick={onCardClick}
     >
-      {/* 1. Colored Header Banner (Zoro Card Header) */}
-      <div className="duel-card-header" style={{ backgroundColor: posTheme.bg }}>
-        <div className="duel-card-title-group">
-          <span className="duel-card-name" title={card.name}>
-            {card.name}
-          </span>
-          <span className="duel-card-subtitle">
-            {card.club} • {card.position}
-          </span>
+      {/* 1. Atmospheric Stadium Floodlights */}
+      <div className="floodlight-stadium-lights">
+        <div className="floodlight-beam beam-left" />
+        <div className="floodlight-beam beam-right" />
+        <div className="floodlight-halo" />
+      </div>
+
+      {/* 2. Top Header Row: Rating + Position (Left) & Edition/Badge (Right) */}
+      <div className="floodlight-header-row">
+        <div
+          className={`floodlight-ovr-box ${isOvrHighlighted ? 'active-stat' : ''} ${allowStatSelection ? 'selectable' : ''}`}
+          onClick={(e) => handleStatClick(e, 'rating')}
+          title="Overall Rating (OVR)"
+        >
+          <span className="floodlight-ovr-number">{hideStats ? '--' : card.stats.rating}</span>
+          <span className="floodlight-position">{card.position}</span>
         </div>
-        <div className="duel-card-header-right">
-          {!hideStats && isGk && <span className="duel-gk-badge">TRUMP</span>}
-          <span className="duel-card-ovr-badge">{hideStats ? '--' : card.stats.rating}</span>
+
+        <div className="floodlight-header-right">
+          {!hideStats && isGk && <span className="floodlight-gk-pill">TRUMP GK</span>}
+          <span className="floodlight-series-edition">XI / 26</span>
         </div>
       </div>
 
-      {/* 2. Middle Portrait Section */}
-      <div className="duel-card-portrait-stage">
+      {/* 3. Center Player Portrait Stage */}
+      <div className="floodlight-player-stage">
         {card.image && (
           <img
             src={card.image}
             alt={card.name}
-            className="duel-card-photo"
+            className="floodlight-player-photo"
             loading="lazy"
           />
         )}
-        <div className="duel-card-badge-row">
-          {card.countryFlag && (
-            <img
-              src={card.countryFlag}
-              alt={card.nationality}
-              className="duel-badge-flag"
-              loading="lazy"
-            />
-          )}
-          {card.clubLogo && (
-            <img
-              src={card.clubLogo}
-              alt={card.club}
-              className="duel-badge-club"
-              loading="lazy"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          )}
-        </div>
       </div>
 
-      {/* 3. Bottom Stats Plate (Vertical List Matching Screenshot) */}
-      <div className="duel-card-stats-plate">
-        {statsList.map(({ key, label }) => {
-          const isHighlighted = highlightedStat === key;
-          const statVal = hideStats ? '?' : (card.stats[key] ?? '-');
-          const isSelectableRow = allowStatSelection;
+      {/* 4. Bottom Info Section: Player Name, Subtitle Line, Divider, Stats Row */}
+      <div className="floodlight-bottom-section">
+        <div className="floodlight-player-name" title={card.name}>
+          {card.name}
+        </div>
 
-          return (
-            <div
-              key={key}
-              className={`duel-stat-row ${isHighlighted ? 'active-category' : ''} ${isSelectableRow ? 'selectable' : ''}`}
-              onClick={(e) => handleStatClick(e, key)}
-            >
-              <div className="duel-stat-left">
-                <span className="duel-stat-icon">{getStatIcon(key)}</span>
-                <span className="duel-stat-name">{label}</span>
+        <div className="floodlight-subtitle">
+          <div className="floodlight-meta-left">
+            {card.countryFlag && (
+              <img
+                src={card.countryFlag}
+                alt={card.nationality}
+                className="floodlight-mini-flag"
+                loading="lazy"
+              />
+            )}
+            <span className="floodlight-country-code">{countryCode}</span>
+            <span className="floodlight-sep">/</span>
+            <span className="floodlight-series-name">
+              {card.club ? card.club.toUpperCase() : 'FLOODLIGHT SERIES'}
+            </span>
+          </div>
+          <span className="floodlight-diamond">◆</span>
+        </div>
+
+        <div className="floodlight-divider" />
+
+        <div className="floodlight-stats-row">
+          {statsList.map(({ key, label }) => {
+            const isHighlighted = highlightedStat === key;
+            const statVal = hideStats ? '?' : (card.stats[key] ?? '-');
+            const isSelectable = allowStatSelection;
+
+            return (
+              <div
+                key={key}
+                className={`floodlight-stat-col ${isHighlighted ? 'active-stat' : ''} ${isSelectable ? 'selectable' : ''}`}
+                onClick={(e) => handleStatClick(e, key)}
+                title={label}
+              >
+                <span className="floodlight-stat-val">{statVal}</span>
+                <span className="floodlight-stat-lbl">{label}</span>
               </div>
-              <span className="duel-stat-value">{statVal}</span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

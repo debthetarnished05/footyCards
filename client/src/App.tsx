@@ -3,7 +3,6 @@ import { useSocket } from './context/SocketContext';
 import type { ClientGameState, RoundShowdown, AnyBattleStat, PlayerState, GameCard } from './types/game';
 import { Lobby } from './components/Lobby';
 import { GameArena } from './components/GameArena';
-import { PlayerHand } from './components/PlayerHand';
 import { GameOverModal } from './components/GameOverModal';
 import './styles/game.css';
 
@@ -91,79 +90,32 @@ export const App: React.FC = () => {
     return <Lobby onGameStarted={handleGameStarted} />;
   }
 
-  const myPlayer = gameState.players[currentUserId];
-  const isMyTurnToCall = gameState.phase === 'CALLER_SELECTION' && gameState.callerId === currentUserId;
-  const isMyTurnToRespond =
-    gameState.phase === 'OPPONENT_RESPONSES' &&
-    gameState.callerId !== currentUserId &&
-    !myPlayer?.hasSubmitted;
-
-  const rivals = Object.values(gameState.players).filter((p) => p.id !== currentUserId);
-
   return (
     <div className="game-screen">
-      {/* 1. Edge-to-Edge Match Topbar */}
+      {/* 1. Sleek Match Stand Header Bar */}
       <div className="table-topbar">
-        {/* Left: Brand Emblem & Titles */}
-        <div className="table-brand">
-          <div className="table-brand-emblem">
-            <svg viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="38" fill="none" stroke="#e5b842" strokeWidth="2" opacity="0.6" />
-              <polygon points="50,14 54,46 86,50 54,54 50,86 46,54 14,50 46,46" fill="#e5b842" />
-            </svg>
-          </div>
-          <div className="table-brand-titles">
-            <span className="table-brand-title">Footy Duel</span>
-            <span className="table-brand-subtitle">Tactical Wager</span>
-          </div>
+        <div className="table-stand-title">
+          <span className="stand-name">FootyCards</span>
+          <span className="stand-room-id">ROOM {activeRoomId}</span>
         </div>
 
-        {/* Center: Round Shield Badge */}
-        <div className="table-round-badge">
-          <span className="table-round-label">ROUND</span>
-          <span className="table-round-num">{gameState.currentRound} / 11</span>
-        </div>
-
-        {/* Right: Scores */}
-        <div className="table-scores-bar">
-          <div className={`score-box is-you ${gameState.callerId === currentUserId ? 'is-turn' : ''}`}>
-            <span className="score-lbl">YOU</span>
-            <span className="score-val">{myPlayer?.score ?? 0}</span>
+        <div className="table-top-right">
+          <div className="table-round-pill">
+            <span className="round-pill-lbl">ROUND</span>
+            <span className="round-pill-val">{gameState.currentRound} / 11</span>
           </div>
-          {rivals.map((rival) => (
-            <div
-              key={rival.id}
-              className={`score-box is-rival ${gameState.callerId === rival.id ? 'is-turn' : ''}`}
-              title={rival.name}
-            >
-              <span className="score-lbl">
-                {rivals.length === 1 ? 'RIVAL' : rival.name}
-              </span>
-              <span className="score-val">{rival.score}</span>
-            </div>
-          ))}
         </div>
       </div>
 
-      {/* 2. Center Field: Opponents & Played Cards Arena */}
+      {/* 2. Game Arena (Football Pitch with Clash Zone, Player Hand & Standings) */}
       <GameArena
         gameState={gameState}
         lastShowdown={lastShowdown}
         currentUserId={currentUserId}
         calledCard={calledCard}
+        onCallStat={handleCallStat}
+        onSubmitCard={handleSubmitCard}
       />
-
-      {/* 3. Bottom Tray: Player Cards Side-by-Side */}
-      {myPlayer && (
-        <PlayerHand
-          hand={myPlayer.hand}
-          isMyTurnToCall={isMyTurnToCall}
-          isMyTurnToRespond={isMyTurnToRespond}
-          activeCategory={gameState.selectedCategory}
-          onCallStat={handleCallStat}
-          onSubmitCard={handleSubmitCard}
-        />
-      )}
 
       {/* Game Over Leaderboard Modal */}
       {gameOverData && (
