@@ -41,12 +41,15 @@ export class GameEngine {
       };
     });
 
+    const initialDealerIndex = Math.floor(Math.random() * turnOrder.length);
+    const initialCallerId = turnOrder[initialDealerIndex] ?? turnOrder[0] ?? '';
+
     this.state = {
       roomId,
       phase: 'CALLER_SELECTION',
       currentRound: 1,
       maxPlayers: initialPlayers.length,
-      callerId: turnOrder[0],
+      callerId: initialCallerId,
       selectedCategory: null,
       players,
       turnOrder,
@@ -73,20 +76,52 @@ export class GameEngine {
       {} as Record<string, any>
     );
 
+    // Sanitize submissions:
+    // - Showdown: reveal all submissions with full stats
+    // - Pre-showdown:
+    //   * The requesting player gets their own full submission
+    //   * If the caller has submitted, other players get the caller's card but with stats STRIPPED (zero privacy leak)
+    //   * For other opponents who submitted, return { submitted: true } (no card details)
+    const sanitizedSubmissions = isShowdown
+      ? this.state.submissions
+      : Object.keys(this.state.submissions).reduce((acc, pid) => {
+          if (pid === forPlayerId) {
+            acc[pid] = this.state.submissions[pid];
+          } else if (pid === this.state.callerId) {
+            const callerSub = this.state.submissions[pid];
+            if (callerSub) {
+              acc[pid] = {
+                card: {
+                  cardId: callerSub.card.cardId,
+                  name: callerSub.card.name,
+                  club: callerSub.card.club,
+                  nationality: callerSub.card.nationality,
+                  position: callerSub.card.position,
+                  image: callerSub.card.image,
+                  clubLogo: callerSub.card.clubLogo,
+                  countryFlag: callerSub.card.countryFlag,
+                  stats: {}, // STRIPPED: No stat numbers exposed over network!
+                },
+                statUsed: callerSub.statUsed,
+              };
+            } else {
+              acc[pid] = { submitted: true };
+            }
+          } else {
+            acc[pid] = { submitted: true };
+          }
+          return acc;
+        }, {} as Record<string, any>);
+
     return {
       ...this.state,
       players: sanitizedPlayers,
-      submissions: isShowdown
-        ? this.state.submissions
-        : Object.keys(this.state.submissions).reduce((acc, pid) => {
-            acc[pid] = pid === forPlayerId ? this.state.submissions[pid] : true;
-            return acc;
-          }, {} as Record<string, any>),
+      submissions: sanitizedSubmissions,
     };
   }
 
-  // Caller plays card and sets the outfield category (or rating)
-  public callerSelect(callerId: string, cardId: string, category: OutfieldStat): boolean {
+  // Caller plays card and sets the category (outfield stat, GK stat, or rating)
+  public callerSelect(callerId: string, cardId: string, category: AnyBattleStat): boolean {
     if (this.state.phase !== 'CALLER_SELECTION' || this.state.callerId !== callerId) {
       return false;
     }
@@ -101,17 +136,19 @@ export class GameEngine {
     const card = removedCards[0];
     if (!card) return false;
 
-    const effectiveValue = card.stats[category] ?? 0;
+    // Option 1 Rule: When dealer leads with a GK, battle is strictly on Overall Rating ('rating')
+    const finalCategory: AnyBattleStat = card.position === 'GK' ? 'rating' : category;
+    const effectiveValue = card.stats[finalCategory] ?? 0;
 
-    this.state.submissions[callerId] = { card, statUsed: category, effectiveValue };
+    this.state.submissions[callerId] = { card, statUsed: finalCategory, effectiveValue };
     player.hasSubmitted = true;
-    this.state.selectedCategory = category;
+    this.state.selectedCategory = finalCategory;
     this.state.phase = 'OPPONENT_RESPONSES';
 
     return true;
   }
 
-  // Opponents respond: If GK, they can specify `chosenGkStat`. Otherwise uses the called category.
+  // Opponents respond: If GK, they can specify `chosenGkStat` as trump. Otherwise uses called category.
   public playerSubmit(playerId: string, cardId: string, chosenGkStat?: AnyBattleStat): boolean {
     if (this.state.phase !== 'OPPONENT_RESPONSES' || playerId === this.state.callerId) {
       return false;
@@ -148,6 +185,18 @@ export class GameEngine {
     return Object.values(this.state.players).every((p) => p.hasSubmitted);
   }
 
+  // Convert disconnected player into a CPU bot to prevent mid-game freezes
+  public handlePlayerDisconnect(playerId: string): void {
+    const player = this.state.players[playerId];
+    if (!player) return;
+
+    player.connected = false;
+    player.isCpu = true;
+    if (!player.name.includes('(BOT)')) {
+      player.name = `${player.name} (BOT)`;
+    }
+  }
+
   // CPU bot logic supporting GK trump card decisions
   public executeCpuTurns(): void {
     const category = this.state.selectedCategory;
@@ -158,28 +207,37 @@ export class GameEngine {
       if (this.state.phase === 'CALLER_SELECTION' && this.state.callerId === player.id) {
         // CPU as Caller
         const card = player.hand[0];
-        const validOutfieldStats: OutfieldStat[] = ['rating', 'pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
-        let bestStat: OutfieldStat = 'rating';
-        let max = -1;
+        if (!card) continue;
 
-        for (const stat of validOutfieldStats) {
-          if ((card.stats[stat] ?? -1) > max) {
-            max = card.stats[stat];
-            bestStat = stat;
+        let bestStat: AnyBattleStat = 'rating';
+        if (card.position === 'GK') {
+          // Option 1 Rule: When dealer plays a GK, category is locked to 'rating' (OVR)
+          bestStat = 'rating';
+        } else {
+          let max = -1;
+          for (const [sKey, sVal] of Object.entries(card.stats)) {
+            if (typeof sVal === 'number' && sVal > max) {
+              max = sVal;
+              bestStat = sKey as AnyBattleStat;
+            }
           }
         }
         this.callerSelect(player.id, card.cardId, bestStat);
       } else if (this.state.phase === 'OPPONENT_RESPONSES' && category) {
         // CPU as Responder: checks if it has a GK to trump with
-        let bestCard = player.hand[0];
+        const firstCard = player.hand[0];
+        if (!firstCard) continue;
+
+        let bestCard = firstCard;
         let bestStatUsed: AnyBattleStat = category;
         let highestFound = -1;
 
         for (const card of player.hand) {
+          if (!card) continue;
           if (card.position === 'GK') {
             // Find GK's highest stat
             for (const [sKey, sVal] of Object.entries(card.stats)) {
-              if (sVal > highestFound) {
+              if (typeof sVal === 'number' && sVal > highestFound) {
                 highestFound = sVal;
                 bestCard = card;
                 bestStatUsed = sKey as AnyBattleStat;
@@ -199,7 +257,7 @@ export class GameEngine {
     }
   }
 
-  // Round resolution according to your scoring rules
+  // Round resolution according to rules: caller loss penalty (-1 pt), winners (+1 pt)
   public resolveRound(): RoundShowdown {
     const category = this.state.selectedCategory;
     if (!category) throw new Error('Cannot resolve round without an active category.');
@@ -226,17 +284,20 @@ export class GameEngine {
 
     const callerId = this.state.callerId;
     const callerWonOrTied = winners.includes(callerId);
+    const callerPlayer = this.state.players[callerId];
 
     if (callerWonOrTied) {
       // Caller gets +1; any other tied 1st place players also get +1; losers get 0
       winners.forEach((winnerId) => {
-        this.state.players[winnerId].score += 1;
+        const p = this.state.players[winnerId];
+        if (p) p.score += 1;
       });
     } else {
       // Caller lost: Caller gets -1; Winner(s) get +1; Others get 0
-      this.state.players[callerId].score -= 1;
+      if (callerPlayer) callerPlayer.score -= 1;
       winners.forEach((winnerId) => {
-        this.state.players[winnerId].score += 1;
+        const p = this.state.players[winnerId];
+        if (p) p.score += 1;
       });
     }
 
@@ -271,7 +332,7 @@ export class GameEngine {
 
     const currentIndex = this.state.turnOrder.indexOf(this.state.callerId);
     const nextIndex = (currentIndex + 1) % this.state.turnOrder.length;
-    this.state.callerId = this.state.turnOrder[nextIndex];
+    this.state.callerId = this.state.turnOrder[nextIndex] ?? '';
 
     this.state.phase = 'CALLER_SELECTION';
     return true;
@@ -293,5 +354,4 @@ export class GameEngine {
 
     return { winners, highestScore: maxScore };
   }
-  
 }

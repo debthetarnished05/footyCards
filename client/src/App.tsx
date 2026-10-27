@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from './context/SocketContext';
-import type { ClientGameState, RoundShowdown, OutfieldStat, AnyBattleStat, PlayerState } from './types/game';
+import type { ClientGameState, RoundShowdown, AnyBattleStat, PlayerState, GameCard } from './types/game';
 import { Lobby } from './components/Lobby';
 import { GameArena } from './components/GameArena';
 import { PlayerHand } from './components/PlayerHand';
@@ -19,20 +19,24 @@ export const App: React.FC = () => {
     highestScore: number;
   } | null>(null);
 
-// Inside client/src/App.tsx
-
   const [calledCard, setCalledCard] = useState<GameCard | null>(null);
 
   useEffect(() => {
     socket.on('game:state_sync', (syncedState: ClientGameState) => {
       setGameState(syncedState);
-      if (syncedState.phase === 'CALLER_SELECTION') {
+
+      const callerSub = syncedState.submissions[syncedState.callerId];
+      if (callerSub && callerSub.card) {
+        setCalledCard(callerSub.card);
+      } else if (syncedState.phase === 'CALLER_SELECTION') {
         setCalledCard(null);
       }
     });
 
-    socket.on('round:category_chosen', (data: { callerId: string; callerName: string; card: GameCard; selectedCategory: OutfieldStat }) => {
-      setCalledCard(data.card);
+    socket.on('round:category_chosen', (data: { callerId: string; callerName: string; card?: GameCard; selectedCategory: AnyBattleStat }) => {
+      if (data.card) {
+        setCalledCard(data.card);
+      }
     });
 
     socket.on('round:showdown', (showdownResult: RoundShowdown) => {
@@ -43,21 +47,25 @@ export const App: React.FC = () => {
       setGameOverData({ winners, highestScore });
     });
 
+    socket.on('game:error', ({ message }: { message: string }) => {
+      console.error('Game error:', message);
+    });
+
     return () => {
       socket.off('game:state_sync');
       socket.off('round:category_chosen');
       socket.off('round:showdown');
       socket.off('game:over');
+      socket.off('game:error');
     };
   }, [socket]);
-
 
   const handleGameStarted = (roomId: string, playerId: string) => {
     setActiveRoomId(roomId);
     setCurrentUserId(playerId || socket.id || '');
   };
 
-  const handleCallStat = (cardId: string, category: OutfieldStat) => {
+  const handleCallStat = (cardId: string, category: AnyBattleStat) => {
     if (!activeRoomId) return;
     socket.emit('round:caller_select', {
       roomId: activeRoomId,
@@ -90,27 +98,54 @@ export const App: React.FC = () => {
     gameState.callerId !== currentUserId &&
     !myPlayer?.hasSubmitted;
 
+  const rivals = Object.values(gameState.players).filter((p) => p.id !== currentUserId);
+
   return (
     <div className="game-screen">
-      {/* Top Bar: Roster and Scores */}
-      <div className="match-topbar">
-        <div className="match-round-badge">
-          ROUND {gameState.currentRound} / 11
+      {/* 1. Edge-to-Edge Match Topbar */}
+      <div className="table-topbar">
+        {/* Left: Brand Emblem & Titles */}
+        <div className="table-brand">
+          <div className="table-brand-emblem">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#e5b842" strokeWidth="2" opacity="0.6" />
+              <polygon points="50,14 54,46 86,50 54,54 50,86 46,54 14,50 46,46" fill="#e5b842" />
+            </svg>
+          </div>
+          <div className="table-brand-titles">
+            <span className="table-brand-title">Footy Duel</span>
+            <span className="table-brand-subtitle">Tactical Wager</span>
+          </div>
         </div>
-        <div className="players-roster-bar">
-          {Object.values(gameState.players).map((p) => (
+
+        {/* Center: Round Shield Badge */}
+        <div className="table-round-badge">
+          <span className="table-round-label">ROUND</span>
+          <span className="table-round-num">{gameState.currentRound} / 11</span>
+        </div>
+
+        {/* Right: Scores */}
+        <div className="table-scores-bar">
+          <div className={`score-box is-you ${gameState.callerId === currentUserId ? 'is-turn' : ''}`}>
+            <span className="score-lbl">YOU</span>
+            <span className="score-val">{myPlayer?.score ?? 0}</span>
+          </div>
+          {rivals.map((rival) => (
             <div
-              key={p.id}
-              className={`player-roster-pill ${gameState.callerId === p.id ? 'is-turn' : ''}`}
+              key={rival.id}
+              className={`score-box is-rival ${gameState.callerId === rival.id ? 'is-turn' : ''}`}
+              title={rival.name}
             >
-              <span>{p.name} {p.id === currentUserId ? '(You)' : ''}</span>
-              <span className="score">{p.score} pts</span>
+              <span className="score-lbl">
+                {rivals.length === 1 ? 'RIVAL' : rival.name}
+              </span>
+              <span className="score-val">{rival.score}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Center Field: Played Cards Arena */}
+      {/* 2. Center Field: Opponents & Played Cards Arena */}
       <GameArena
         gameState={gameState}
         lastShowdown={lastShowdown}
@@ -118,7 +153,7 @@ export const App: React.FC = () => {
         calledCard={calledCard}
       />
 
-      {/* Bottom Tray: Player Hand */}
+      {/* 3. Bottom Tray: Player Cards Side-by-Side */}
       {myPlayer && (
         <PlayerHand
           hand={myPlayer.hand}

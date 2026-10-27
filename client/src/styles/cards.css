@@ -253,3 +253,511 @@
   background-color: var(--border-color);
   border-radius: 3px;
 }
+
+/* ========================================================
+   GRAND DUEL CARD DESIGN (REFERENCE SCREENSHOT STYLE)
+======================================================== */
+
+.duel-card {
+  position: relative;
+  width: 210px;
+  height: 320px;
+  background: linear-gradient(180deg, #1b2832 0%, #101a21 100%);
+  border: 2px solid #3b4e5a;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.duel-card.clickable {
+  cursor: pointer;
+}
+
+.duel-card.clickable:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 184, 66, 0.35);
+  border-color: var(--accent-gold) !important;
+}
+
+.duel-card.selected {
+  transform: translateY(-10px) scale(1.02);
+  border-color: var(--accent-gold) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 24px rgba(229, 184, 66, 0.55);
+}
+
+.duel-card.compact {
+  width: 175px;
+  height: 270px;
+}
+
+.duel-card.compact .duel-card-portrait-stage {
+  height: 85px;
+}
+
+.duel-card.compact .duel-card-photo {
+  height: 80px;
+  width: 80px;
+}
+
+.duel-card.compact .duel-card-name {
+  font-size: 0.74rem;
+}
+
+.duel-card.compact .duel-stat-row {
+  padding: 1px 4px;
+  font-size: 0.68rem;
+}
+
+.duel-card.compact .duel-stat-value {
+  font-size: 0.72rem;
+}
+
+/* 1. Header Banner */
+.duel-card-header {
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.duel-card-title-group {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 135px;
+}
+
+.duel-card-name {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.duel-card-subtitle {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.duel-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.duel-gk-badge {
+  background: #f59e0b;
+  color: #000;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.duel-card-ovr-badge {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+  border: 1px solid rgba(229, 184, 66, 0.3);
+}
+
+/* 2. Middle Portrait Stage */
+.duel-card-portrait-stage {
+  position: relative;
+  height: 105px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background: radial-gradient(circle at 50% 60%, rgba(45, 65, 80, 0.4) 0%, rgba(15, 25, 33, 0.8) 100%);
+  overflow: hidden;
+}
+
+.duel-card-photo {
+  height: 100px;
+  width: 100px;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
+.duel-card-badge-row {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+}
+
+.duel-badge-flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.duel-badge-club {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+
+/* 3. Bottom Stats Plate */
+.duel-card-stats-plate {
+  margin: 5px 8px 8px 8px;
+  padding: 4px 6px;
+  background: rgba(8, 14, 18, 0.92);
+  border: 1px solid rgba(229, 184, 66, 0.22);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  flex: 1;
+  justify-content: space-evenly;
+}
+
+.duel-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.duel-stat-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.duel-stat-icon {
+  font-size: 0.72rem;
+  opacity: 0.9;
+  width: 14px;
+  display: inline-block;
+  text-align: center;
+}
+
+.duel-stat-name {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.duel-stat-value {
+  font-weight: 900;
+  color: #ffffff;
+  font-size: 0.78rem;
+}
+
+.duel-stat-row.active-category {
+  background: rgba(229, 184, 66, 0.35);
+  box-shadow: inset 0 0 0 1px var(--accent-gold);
+  color: #ffffff;
+}
+
+.duel-stat-row.active-category .duel-stat-value {
+  color: var(--accent-gold);
+  text-shadow: 0 0 6px rgba(229, 184, 66, 0.6);
+}
+
+.duel-stat-row.selectable:hover {
+  background: rgba(229, 184, 66, 0.4);
+  cursor: pointer;
+  transform: translateX(2px);
+}
+
+/* ========================================================
+   CARD BACK (AUTHENTIC GOLD COMPASS REFERENCE STYLE)
+======================================================== */
+
+.card-back-container {
+  width: 210px;
+  height: 320px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #182a35 0%, #111d24 60%, #0a1217 100%);
+  border: 2px solid #8e7340;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.8);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-back-container.compact {
+  width: 160px;
+  height: 240px;
+  padding: 6px;
+}
+
+.card-back-inner-frame {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(229, 184, 66, 0.45);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, rgba(30, 48, 60, 0.3) 0%, transparent 80%);
+}
+
+.card-back-compass {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+}
+
+.card-back-brand {
+  margin-top: 14px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.card-back-badge {
+  position: absolute;
+  bottom: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(229, 184, 66, 0.4);
+  color: var(--accent-gold);
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================================
+   CASCADING / STAGGERED VERTICAL CARD STACK (PLAYER & RIVAL)
+======================================================== */
+
+.cascading-deck-container {
+  position: relative;
+  width: 220px;
+  min-height: 480px;
+  user-select: none;
+}
+
+.cascading-card-tab {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.cascading-card-tab:hover {
+  transform: translateX(-8px) scale(1.02);
+  z-index: 35 !important;
+}
+
+.cascading-card-tab.is-active {
+  z-index: 30 !important;
+  transform: none;
+}
+
+/* Cascading Deck Wrapper */
+.cascading-deck-wrapper {
+  position: relative;
+  width: 215px;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.cascading-tabs-stack {
+  position: relative;
+  width: 100%;
+}
+
+.cascading-tab-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 38px;
+  padding: 4px 10px;
+  border-radius: 10px 10px 0 0;
+  border: 1.5px solid;
+  border-bottom: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.2s ease;
+}
+
+.cascading-tab-row:hover {
+  transform: translateY(-4px) scale(1.02);
+  filter: brightness(1.25);
+  box-shadow: 0 -4px 12px rgba(229, 184, 66, 0.4);
+}
+
+.cascading-tab-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 145px;
+}
+
+.cascading-tab-name {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.cascading-tab-sub {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cascading-tab-ovr {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(229, 184, 66, 0.3);
+}
+
+.cascading-front-card {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.empty-hand-placeholder {
+  width: 210px;
+  height: 310px;
+  border-radius: 14px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Duel Action Buttons & Prompts */
+.duel-action-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.duel-action-btn {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.duel-action-btn.gold {
+  background: linear-gradient(135deg, #f6e6b4 0%, #e5b842 50%, #b8860b 100%);
+  color: #0b151a;
+  border-color: #ffe082;
+}
+
+.duel-action-btn.gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 184, 66, 0.6);
+  filter: brightness(1.1);
+}
+
+.duel-action-prompt {
+  width: 100%;
+  padding: 6px 10px;
+  background: rgba(229, 184, 66, 0.12);
+  border: 1px dashed rgba(229, 184, 66, 0.5);
+  border-radius: 6px;
+  color: #f6e6b4;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: subtlePulse 2s infinite;
+}
+
+.duel-action-prompt.muted {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
+  animation: none;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; border-color: rgba(229, 184, 66, 0.9); }
+}

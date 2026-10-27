@@ -11,6 +11,8 @@ export interface GameCard {
   nationality: string;
   position: PositionType;
   image?: string;
+  clubLogo?: string;
+  countryFlag?: string;
   stats: Record<string, number>;
 }
 
@@ -41,7 +43,7 @@ export interface RoundSubmission {
 
 export interface RoundShowdown {
   roundNumber: number;
-  calledCategory: OutfieldStat;
+  calledCategory: AnyBattleStat;
   callerId: string;
   submissions: RoundSubmission[];
   winnerIds: string[];
@@ -55,7 +57,7 @@ export interface GameRoomState {
   currentRound: number;
   maxPlayers: number;
   callerId: string;
-  selectedCategory: OutfieldStat | null;
+  selectedCategory: AnyBattleStat | null;
   players: Record<string, PlayerState>;
   turnOrder: string[];
   submissions: Record<string, { card: GameCard; statUsed: AnyBattleStat; effectiveValue: number }>;

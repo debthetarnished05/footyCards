@@ -1,5 +1,6 @@
 import { GameEngine } from './GameEngine.js';
 import { CardModel } from '../models/Card.js';
+import { MASTER_DECK } from '../data/cards.js';
 import type { GameCard } from '../types/index.js';
 
 export interface LobbyPlayer {
@@ -67,7 +68,7 @@ export class RoomManager {
     return { success: true };
   }
 
-  // Fetch cards from MongoDB, format them into GameCard objects, and initialize GameEngine
+  // Fetch cards from MongoDB (or MASTER_DECK fallback), format them into GameCard objects, and initialize GameEngine
   public async startGame(roomId: string, requestingSocketId: string): Promise<{ success: boolean; error?: string }> {
     const room = this.rooms.get(roomId);
     if (!room) return { success: false, error: 'Room not found' };
@@ -81,10 +82,20 @@ export class RoomManager {
     }
 
     const neededCards = room.players.length * 11;
-    const dbCards = await CardModel.find({}).lean();
+    let dbCards: any[] = [];
+    try {
+      dbCards = await (CardModel as any).find({}).lean();
+    } catch {
+      // Database not connected, will fall back below
+    }
 
-    if (dbCards.length === 0) {
-      return { success: false, error: 'No cards found in database. Run seed script first.' };
+    if (!dbCards || dbCards.length === 0) {
+      // Use built-in static MASTER_DECK fallback
+      const allMasterCards: any[] = [];
+      for (const cardList of Object.values(MASTER_DECK)) {
+        allMasterCards.push(...cardList);
+      }
+      dbCards = allMasterCards;
     }
 
     // Expand card pool if needed so deck has at least neededCards
@@ -100,7 +111,7 @@ export class RoomManager {
       multiplier++;
     }
 
-    // Convert raw MongoDB card docs to flat GameCard objects
+    // Convert raw card objects to flat GameCard objects
     const formattedDeck: GameCard[] = deckPool.map((c: any) => {
       const stats: Record<string, number> = { rating: c.rating };
 
@@ -143,12 +154,22 @@ export class RoomManager {
     return { success: true };
   }
 
-  // Handle player departures/disconnects
-  public removePlayer(socketId: string): { roomId?: string; roomEmpty?: boolean } {
+  // Handle player departures/disconnects. In active games, converts disconnected player to bot so game never freezes.
+  public handlePlayerDisconnect(socketId: string): { roomId?: string; roomEmpty?: boolean } {
     for (const [roomId, room] of this.rooms.entries()) {
       const idx = room.players.findIndex((p) => p.id === socketId);
       if (idx !== -1) {
-        room.players.splice(idx, 1);
+        const player = room.players[idx]!;
+
+        if (room.state === 'PLAYING' && room.engine) {
+          room.engine.handlePlayerDisconnect(socketId);
+          player.isCpu = true;
+          if (!player.name.includes('(BOT)')) {
+            player.name = `${player.name} (BOT)`;
+          }
+        } else {
+          room.players.splice(idx, 1);
+        }
 
         // If no human players left, remove room completely
         const humanCount = room.players.filter((p) => !p.isCpu).length;
@@ -158,7 +179,7 @@ export class RoomManager {
         }
 
         // Reassign host if the host disconnected
-        if (!room.players.some((p) => p.isHost)) {
+        if (!room.players.some((p) => p.isHost && !p.isCpu)) {
           const nextHuman = room.players.find((p) => !p.isCpu);
           if (nextHuman) nextHuman.isHost = true;
         }
@@ -167,5 +188,9 @@ export class RoomManager {
       }
     }
     return {};
+  }
+
+  public removePlayer(socketId: string): { roomId?: string; roomEmpty?: boolean } {
+    return this.handlePlayerDisconnect(socketId);
   }
 }

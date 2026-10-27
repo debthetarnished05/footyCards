@@ -13,7 +13,6 @@ export const connectDB = async (): Promise<void> => {
     const conn = await mongoose.connect(mongoUri);
     console.log(`MongoDB connected successfully: ${conn.connection.host}`);
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.warn('MongoDB connection unavailable. Server will use in-memory deck fallback.', error);
   }
 };

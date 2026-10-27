@@ -47,7 +47,7 @@ export interface RoundSubmission {
 
 export interface RoundShowdown {
   roundNumber: number;
-  calledCategory: OutfieldStat;
+  calledCategory: AnyBattleStat;
   callerId: string;
   submissions: RoundSubmission[];
   winnerIds: string[];
@@ -61,7 +61,7 @@ export interface ClientGameState {
   currentRound: number;
   maxPlayers: number;
   callerId: string;
-  selectedCategory: OutfieldStat | null;
+  selectedCategory: AnyBattleStat | null;
   players: Record<string, PlayerState>;
   turnOrder: string[];
   submissions: Record<string, any>;

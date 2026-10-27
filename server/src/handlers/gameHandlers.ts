@@ -17,7 +17,7 @@ export const registerGameHandlers = (io: Server, socket: Socket, roomManager: Ro
   };
 
   // Helper: Runs CPU turns, checks for round resolution, and handles post-round delay
-// Helper: Runs CPU turns with a 3-second delay, resolves showdowns, and manages transitions
+// Helper: Runs CPU turns with a delay, resolves showdowns, and manages transitions
 const processTurnCycle = (roomId: string) => {
   const room = roomManager.getRoom(roomId);
   if (!room || !room.engine) return;
@@ -30,7 +30,7 @@ const processTurnCycle = (roomId: string) => {
   );
 
   if (cpuNeedsMove) {
-    // Broadcast immediately so players see "WAITING" / card status during the 3-second think time
+    // Broadcast immediately so players see "WAITING" / card status during think time
     broadcastRoomState(roomId);
 
     setTimeout(() => {
@@ -43,7 +43,7 @@ const processTurnCycle = (roomId: string) => {
 
       // Check if all players have submitted after CPU moved
       checkAndResolveShowdown(roomId);
-    }, 3000);
+    }, 1500);
   } else {
     // If no CPU move is pending, check directly
     checkAndResolveShowdown(roomId);
@@ -133,14 +133,11 @@ const checkAndResolveShowdown = (roomId: string) => {
   // --- GAMEPLAY EVENTS ---
 
   // 5. Caller selects their card and calls the stat
-// Inside server/src/handlers/gameHandlers.ts
-
-  socket.on('round:caller_select', ({ roomId, cardId, category }: { roomId: string; cardId: string; category: OutfieldStat }) => {
+  socket.on('round:caller_select', ({ roomId, cardId, category }: { roomId: string; cardId: string; category: AnyBattleStat }) => {
     const room = roomManager.getRoom(roomId);
     if (!room || !room.engine) return;
 
     const caller = room.engine.getState().players[socket.id];
-    const chosenCard = caller?.hand.find((c) => c && c.cardId === cardId);
 
     const success = room.engine.callerSelect(socket.id, cardId, category);
     if (!success) {
@@ -148,13 +145,15 @@ const checkAndResolveShowdown = (roomId: string) => {
       return;
     }
 
-    // Broadcast the selected category along with the played card object
+    // Broadcast category chosen without leaking stat values
     io.to(roomId).emit('round:category_chosen', {
       callerId: socket.id,
       callerName: caller?.name || 'Caller',
-      card: chosenCard,
       selectedCategory: category,
     });
+
+    // IMMEDIATELY sync state to all players so caller card is placed in arena & hand is updated
+    broadcastRoomState(roomId);
 
     processTurnCycle(roomId);
   });
@@ -170,16 +169,24 @@ const checkAndResolveShowdown = (roomId: string) => {
       return;
     }
 
+    // IMMEDIATELY sync state so responder sees their card played & others see READY
+    broadcastRoomState(roomId);
+
     processTurnCycle(roomId);
   });
 
   // --- DISCONNECT ---
   socket.on('disconnect', () => {
-    const { roomId, roomEmpty } = roomManager.removePlayer(socket.id);
+    const { roomId, roomEmpty } = roomManager.handlePlayerDisconnect(socket.id);
     if (roomId && !roomEmpty) {
       const room = roomManager.getRoom(roomId);
       if (room) {
-        io.to(roomId).emit('lobby:updated', { players: room.players });
+        if (room.state === 'PLAYING') {
+          broadcastRoomState(roomId);
+          processTurnCycle(roomId);
+        } else {
+          io.to(roomId).emit('lobby:updated', { players: room.players });
+        }
       }
     }
   });
