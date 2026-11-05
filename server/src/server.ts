@@ -9,8 +9,13 @@ import { registerGameHandlers } from './handlers/gameHandlers.js';
 
 dotenv.config();
 
+const CLIENT_URL = process.env.CLIENT_URL || '*';
+
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: CLIENT_URL === '*' ? '*' : [CLIENT_URL, 'http://localhost:5173'],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get("/",(req,res)=>{
@@ -22,8 +27,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: CLIENT_URL === '*' ? '*' : [CLIENT_URL, 'http://localhost:5173'],
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 

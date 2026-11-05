@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 
 const SocketContext = createContext<Socket | null>(null);
 
-const BACKEND_URL = 'http://localhost:4000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
 // Initialize the socket once outside the React render loop
 export const socket: Socket = io(BACKEND_URL, {
