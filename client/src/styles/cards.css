@@ -272,14 +272,12 @@
 
 .floodlight-card.clickable:hover,
 .duel-card.clickable:hover {
-  transform: translateY(-6px);
   border-color: #e2c974;
 }
 
 .floodlight-card.selected,
 .duel-card.selected {
-  transform: translateY(-10px) scale(1.02);
-  border: 2px solid #a3e635 !important; /* Electric neon lime green border (Malik Diallo style) */
+  border: 2.5px solid #a3e635 !important; /* Clean electric neon lime green border matching card perimeter */
 }
 
 .floodlight-card.selected .floodlight-ovr-number,

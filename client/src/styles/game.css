@@ -219,8 +219,12 @@
 }
 
 .arena-card-holder.is-winner {
-  outline: 3px solid #a3e635;
-  border-radius: 14px;
+  transform: scale(1.04);
+}
+
+.arena-card-holder.is-winner .floodlight-card,
+.arena-card-holder.is-winner .duel-card {
+  border: 2.5px solid #a3e635 !important;
 }
 
 /* Full Heroic Size for Arena Cards & Placeholders */
@@ -327,17 +331,22 @@
   width: 170px !important;
   height: 250px !important;
   border-radius: 14px !important;
+  transform: none !important;
 }
 
 .fanned-card-item.is-selected {
-  outline: 3px solid #a3e635;
-  border-radius: 14px;
+  outline: none;
 }
 
-/* Floating Action Overlay above the selected card */
+.fanned-card-item.is-selected .floodlight-card,
+.fanned-card-item.is-selected .duel-card {
+  border: 2.5px solid #a3e635 !important;
+}
+
+/* Floating Action Overlay cleanly above the selected card */
 .pitch-action-overlay {
   position: absolute;
-  top: -55px;
+  top: -135px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -502,5 +511,8 @@
   }
   .pitch-fanned-deck {
     height: 235px;
+  }
+  .pitch-action-overlay {
+    top: -115px;
   }
 }
