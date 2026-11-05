@@ -37,17 +37,20 @@
 ======================================================== */
 .pitch-hud-box-1 {
   position: absolute;
-  top: 16px;
-  left: 28px;
+  top: 14px;
+  left: 24px;
   z-index: 30;
-  background: transparent;
+  background: rgba(0, 18, 6, 0.78);
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  border-radius: 20px;
+  padding: 3px 14px;
 }
 
 .pitch-turn-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #a3e635;
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }
@@ -57,17 +60,20 @@
 ======================================================== */
 .pitch-hud-box-2 {
   position: absolute;
-  top: 16px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
   text-align: center;
-  background: transparent;
+  background: rgba(0, 18, 6, 0.82);
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  border-radius: 20px;
+  padding: 3px 16px;
 }
 
 .pitch-round-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #ffffff;
   letter-spacing: 1.2px;
@@ -78,10 +84,13 @@
 ======================================================== */
 .pitch-hud-box-3 {
   position: absolute;
-  top: 16px;
-  right: 28px;
+  top: 14px;
+  right: 24px;
   z-index: 30;
-  background: transparent;
+  background: rgba(0, 18, 6, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 3px 14px;
 }
 
 .pitch-scores-row {
@@ -95,7 +104,7 @@
   align-items: center;
   gap: 6px;
   font-family: 'Outfit', sans-serif;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #ffffff;
   letter-spacing: 0.5px;
@@ -113,7 +122,7 @@
 
 .score-player-points {
   color: #ffffff;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
@@ -124,11 +133,11 @@
 
 /* ========================================================
    BOX 4: ARENA - SELECTED CARDS (Center Field)
-   Shifted UP so it is never covered by the deck
+   Heroic Card Dimensions & Pixel-Balanced Pitch Spacing
 ======================================================== */
 .pitch-hud-box-4 {
   position: absolute;
-  top: 55px;
+  top: 46px;
   left: 50%;
   transform: translateX(-50%);
   width: 92%;
@@ -136,7 +145,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   z-index: 20;
   background: transparent;
 }
@@ -146,6 +155,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1px;
+  margin-bottom: 2px;
 }
 
 .category-sub {
@@ -154,14 +164,16 @@
   letter-spacing: 2px;
   color: #cbd5e1;
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .category-hero {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.95rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #a3e635;
   letter-spacing: 1.5px;
+  line-height: 1.1;
 }
 
 .arena-cards-row {
@@ -176,7 +188,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .arena-player-tag {
@@ -207,15 +219,20 @@
 }
 
 .arena-card-holder.is-winner {
-  transform: scale(1.05);
   outline: 3px solid #a3e635;
-  border-radius: 12px;
+  border-radius: 14px;
+}
+
+/* Full Heroic Size for Arena Cards & Placeholders */
+.arena-card-holder .floodlight-card,
+.arena-card-holder .duel-card,
+.arena-card-placeholder {
+  width: 170px !important;
+  height: 250px !important;
+  border-radius: 14px !important;
 }
 
 .arena-card-placeholder {
-  width: 136px;
-  height: 195px;
-  border-radius: 12px;
   border: 1.5px dashed rgba(255, 255, 255, 0.45);
   display: flex;
   flex-direction: column;
@@ -227,34 +244,35 @@
 }
 
 .placeholder-icon {
-  font-size: 1.7rem;
+  font-size: 1.8rem;
 }
 
 .placeholder-text {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.4px;
   text-align: center;
-  padding: 0 8px;
+  padding: 0 10px;
 }
 
 .arena-card-showdown-val {
   font-family: 'Outfit', sans-serif;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #a3e635;
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 4px;
 }
 
 .arena-winner-tag {
   background: #a3e635;
   color: #051408;
-  font-size: 0.6rem;
-  padding: 1px 6px;
-  border-radius: 3px;
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  border-radius: 4px;
   font-weight: 700;
 }
 
@@ -270,7 +288,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  height: 255px;
+  height: 270px;
   z-index: 40;
   pointer-events: none;
   background: transparent;
@@ -291,22 +309,29 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  height: 225px;
+  height: 260px;
   width: 100%;
   background: transparent;
 }
 
 .fanned-card-item {
   position: absolute;
-  bottom: -4px;
+  bottom: 4px;
   cursor: pointer;
   transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transform-origin: bottom center;
+  transform-origin: 50% 100%;
+}
+
+.fanned-card-item .floodlight-card,
+.fanned-card-item .duel-card {
+  width: 170px !important;
+  height: 250px !important;
+  border-radius: 14px !important;
 }
 
 .fanned-card-item.is-selected {
   outline: 3px solid #a3e635;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 /* Floating Action Overlay above the selected card */
@@ -441,4 +466,41 @@
   font-family: 'Outfit', sans-serif;
   font-size: 0.95rem;
   color: #ffffff;
+}
+
+/* Responsive adjustment for compact screens (height <= 680px) */
+@media (max-height: 680px) {
+  .pitch-hud-box-1,
+  .pitch-hud-box-2,
+  .pitch-hud-box-3 {
+    top: 8px;
+    padding: 2px 12px;
+  }
+  .pitch-hud-box-4 {
+    top: 36px;
+    gap: 2px;
+  }
+  .category-hero {
+    font-size: 1.55rem;
+  }
+  .arena-card-holder .floodlight-card,
+  .arena-card-holder .duel-card,
+  .arena-card-placeholder {
+    width: 156px !important;
+    height: 230px !important;
+  }
+  .fanned-card-item .floodlight-card,
+  .fanned-card-item .duel-card {
+    width: 156px !important;
+    height: 230px !important;
+  }
+  .fanned-card-item {
+    bottom: -10px;
+  }
+  .pitch-hud-box-5 {
+    height: 245px;
+  }
+  .pitch-fanned-deck {
+    height: 235px;
+  }
 }

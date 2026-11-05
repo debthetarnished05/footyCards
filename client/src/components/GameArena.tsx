@@ -38,21 +38,21 @@ export const GameArena: React.FC<GameArenaProps> = ({
     callerId !== currentUserId &&
     !myPlayer?.hasSubmitted;
 
-  // Box 1 Turn Text: "(Player 1's turn like that) if that players turn in bracket write you okk?"
+  // Box 1 Turn Text: cleanly displaying turn without "(you)"
   const getTurnText = () => {
     if (phase === 'CALLER_SELECTION') {
-      return `${callerDisplayName}'s turn${isCaller ? ' (You)' : ''}`;
+      return isCaller ? 'YOUR TURN' : `${callerDisplayName.toUpperCase()}'S TURN`;
     }
     if (phase === 'OPPONENT_RESPONSES') {
       if (myPlayer && !myPlayer.hasSubmitted) {
-        return 'Your turn (You)';
+        return 'YOUR TURN';
       }
-      return "Opponents' turn";
+      return "OPPONENTS' TURN";
     }
     if (phase === 'SHOWDOWN') {
-      return 'Showdown!';
+      return 'SHOWDOWN!';
     }
-    return 'Match in progress';
+    return 'MATCH IN PROGRESS';
   };
 
   return (
@@ -79,7 +79,7 @@ export const GameArena: React.FC<GameArenaProps> = ({
           {allPlayers.map((p, idx) => (
             <div key={p.id} className="pitch-player-score">
               <span className={`score-player-name ${p.id === currentUserId ? 'is-you' : ''}`}>
-                {p.name}{p.id === currentUserId ? ' (You)' : ''}:
+                {p.name}:
               </span>
               <span className="score-player-points">{p.score}</span>
               {idx < allPlayers.length - 1 && <span className="score-divider">•</span>}
@@ -111,7 +111,7 @@ export const GameArena: React.FC<GameArenaProps> = ({
               return (
                 <div key={p.id} className="arena-player-card-slot">
                   <div className="arena-player-tag">
-                    <span className="arena-player-name">{p.name}{isYou ? ' (You)' : ''}</span>
+                    <span className="arena-player-name">{p.name}</span>
                     {p.id === callerId && <span className="arena-caller-badge">CALLER</span>}
                   </div>
 
@@ -139,7 +139,7 @@ export const GameArena: React.FC<GameArenaProps> = ({
             return (
               <div key={p.id} className="arena-player-card-slot is-pending">
                 <div className="arena-player-tag">
-                  <span className="arena-player-name">{p.name}{isYou ? ' (You)' : ''}</span>
+                  <span className="arena-player-name">{p.name}</span>
                   {p.id === callerId && <span className="arena-caller-badge">CALLER</span>}
                 </div>
 

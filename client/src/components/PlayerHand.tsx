@@ -81,12 +81,9 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
   const total = validCards.length;
   const mid = (total - 1) / 2;
 
-  // Spread across full screen width (taking ~92% of viewport width)
-  const availableWidth = Math.min(1680, Math.max(680, windowWidth * 0.92));
-  // Generous gap so cards don't overlap too much
-  const spread = total > 1 ? Math.min(132, availableWidth / (total - 1)) : 0;
-  // Natural gentle fan curvature across wide span
-  const maxAngle = Math.min(16, total * 1.8);
+  // Spread across screen width
+  const availableWidth = Math.min(1600, Math.max(680, windowWidth * 0.9));
+  const spread = total > 1 ? Math.min(130, availableWidth / (total - 1)) : 0;
 
   // Stat choices for caller if a card is selected
   const callerStats: AnyBattleStat[] = activeCard?.position === 'GK'
@@ -126,12 +123,19 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
         </div>
       )}
 
-      {/* The Fanned Deck of Cards taking full screen width */}
+      {/* The Fanned Deck of Cards */}
       <div className="pitch-fanned-deck">
         {validCards.map((card, idx) => {
           const offset = idx - mid;
-          const rotateDeg = total > 1 ? (offset / (mid || 1)) * (maxAngle / 2) : 0;
-          const translateY = Math.pow(Math.abs(offset) / (mid || 1), 1.5) * 20;
+          const absOffset = Math.abs(offset);
+
+          // Smooth continuous curve across all cards (including the middle three):
+          // Center card (offset=0) is at the crest (0px).
+          // Adjacent cards (offset=±1) curve gently downward by ~5px.
+          // Each outer card curves progressively downward so inner cards are always higher.
+          const translateY = Math.pow(absOffset, 1.38) * 5.2;
+          const rotateDeg = offset * (total > 1 ? Math.min(2.0, 18 / total) : 0);
+
           const translateX = offset * spread;
           const isSelected = card.cardId === activeCard?.cardId;
           const isHovered = card.cardId === hoveredCardId;
