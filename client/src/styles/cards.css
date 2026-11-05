@@ -252,10 +252,11 @@
 .floodlight-card,
 .duel-card {
   position: relative;
+  box-sizing: border-box;
   width: 205px;
   height: 300px;
   background: radial-gradient(circle at 50% 20%, #162633 0%, #0d1720 55%, #060b0f 100%);
-  border: 1.5px solid #c5a059; /* Warm champagne gold metallic border (Santiago Vega style) */
+  border: 2px solid #c5a059; /* Warm champagne gold metallic border (Santiago Vega style) */
   border-radius: 18px;
   user-select: none;
   display: flex;
@@ -277,7 +278,7 @@
 
 .floodlight-card.selected,
 .duel-card.selected {
-  border: 2.5px solid #a3e635 !important; /* Clean electric neon lime green border matching card perimeter */
+  border: 2px solid #a3e635 !important; /* Clean electric neon lime green border matching card perimeter */
 }
 
 .floodlight-card.selected .floodlight-ovr-number,

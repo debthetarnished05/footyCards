@@ -9,36 +9,50 @@ import { registerGameHandlers } from './handlers/gameHandlers.js';
 
 dotenv.config();
 
-const CLIENT_URL = process.env.CLIENT_URL || '*';
-
 const app = express();
+
+const clientUrl = process.env.CLIENT_URL;
+const allowedOrigins = clientUrl && clientUrl !== '*'
+  ? [clientUrl, 'http://localhost:5173']
+  : '*';
+
 app.use(cors({
-  origin: CLIENT_URL === '*' ? '*' : [CLIENT_URL, 'http://localhost:5173'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json());
 
-app.get("/",(req,res)=>{
+app.get('/', (req, res) => {
   res.json({
-    message:"Welcome to footyCards"
-  })
-})
+    message: 'Welcome to footyCards',
+  });
+});
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL === '*' ? '*' : [CLIENT_URL, 'http://localhost:5173'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
+  transports: ['websocket', 'polling'],
+  pingTimeout: 45000,
+  pingInterval: 20000,
+});
+
+// Middleware to extract persistent user ID from socket auth/query
+io.use((socket, next) => {
+  const userId = socket.handshake.auth?.userId || socket.handshake.query?.userId || socket.id;
+  socket.data.userId = userId as string;
+  next();
 });
 
 const roomManager = new RoomManager();
 
-
-
 io.on('connection', (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  const userId = socket.data.userId;
+  console.log(`Client connected: socket=${socket.id}, userId=${userId}`);
   registerGameHandlers(io, socket, roomManager);
 });
 

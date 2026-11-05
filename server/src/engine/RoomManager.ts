@@ -4,10 +4,12 @@ import { MASTER_DECK } from '../data/cards.js';
 import type { GameCard } from '../types/index.js';
 
 export interface LobbyPlayer {
-  id: string; // Socket ID
+  id: string; // Persistent user ID
+  socketId: string; // Current transient socket ID
   name: string;
   isHost: boolean;
   isCpu: boolean;
+  connected?: boolean;
 }
 
 export interface RoomInstance {
@@ -22,11 +24,24 @@ export class RoomManager {
   private rooms: Map<string, RoomInstance> = new Map();
 
   // Create a new room with the host as the first player
-  public createRoom(roomId: string, hostSocketId: string, hostName: string, maxPlayers: number = 4): RoomInstance {
+  public createRoom(
+    roomId: string,
+    hostUserId: string,
+    hostSocketId: string,
+    hostName: string,
+    maxPlayers: number = 4
+  ): RoomInstance {
     const room: RoomInstance = {
       id: roomId,
       players: [
-        { id: hostSocketId, name: hostName, isHost: true, isCpu: false },
+        {
+          id: hostUserId,
+          socketId: hostSocketId,
+          name: hostName,
+          isHost: true,
+          isCpu: false,
+          connected: true,
+        },
       ],
       maxPlayers: Math.min(Math.max(maxPlayers, 2), 10),
       engine: null,
@@ -40,14 +55,46 @@ export class RoomManager {
     return this.rooms.get(roomId);
   }
 
+  // Find a room where the user is an active participant
+  public findRoomByUserId(userId: string): { room: RoomInstance; player: LobbyPlayer } | null {
+    for (const room of this.rooms.values()) {
+      const player = room.players.find((p) => p.id === userId || p.socketId === userId);
+      if (player) {
+        return { room, player };
+      }
+    }
+    return null;
+  }
+
   // Add another human player to an existing room
-  public joinRoom(roomId: string, socketId: string, playerName: string): { success: boolean; error?: string } {
+  public joinRoom(
+    roomId: string,
+    userId: string,
+    socketId: string,
+    playerName: string
+  ): { success: boolean; error?: string } {
     const room = this.rooms.get(roomId);
     if (!room) return { success: false, error: 'Room does not exist' };
+
+    const existingPlayer = room.players.find((p) => p.id === userId);
+    if (existingPlayer) {
+      // Re-attaching to lobby
+      existingPlayer.socketId = socketId;
+      existingPlayer.connected = true;
+      return { success: true };
+    }
+
     if (room.state !== 'LOBBY') return { success: false, error: 'Game already in progress' };
     if (room.players.length >= room.maxPlayers) return { success: false, error: 'Room is full' };
 
-    room.players.push({ id: socketId, name: playerName, isHost: false, isCpu: false });
+    room.players.push({
+      id: userId,
+      socketId,
+      name: playerName,
+      isHost: false,
+      isCpu: false,
+      connected: true,
+    });
     return { success: true };
   }
 
@@ -59,22 +106,25 @@ export class RoomManager {
     if (room.players.length >= room.maxPlayers) return { success: false, error: 'Room is full' };
 
     const cpuIndex = room.players.filter((p) => p.isCpu).length + 1;
+    const cpuId = `cpu_${Date.now()}_${cpuIndex}`;
     room.players.push({
-      id: `cpu_${Date.now()}_${cpuIndex}`,
+      id: cpuId,
+      socketId: cpuId,
       name: `CPU Bot ${cpuIndex}`,
       isHost: false,
       isCpu: true,
+      connected: true,
     });
     return { success: true };
   }
 
-  // Fetch cards from MongoDB (or MASTER_DECK fallback), format them into GameCard objects, and initialize GameEngine
-  public async startGame(roomId: string, requestingSocketId: string): Promise<{ success: boolean; error?: string }> {
+  // Fetch cards and initialize GameEngine
+  public async startGame(roomId: string, requestingUserId: string): Promise<{ success: boolean; error?: string }> {
     const room = this.rooms.get(roomId);
     if (!room) return { success: false, error: 'Room not found' };
 
     const host = room.players.find((p) => p.isHost);
-    if (!host || host.id !== requestingSocketId) {
+    if (!host || (host.id !== requestingUserId && host.socketId !== requestingUserId)) {
       return { success: false, error: 'Only the host can start the game' };
     }
     if (room.players.length < 2) {
@@ -86,11 +136,10 @@ export class RoomManager {
     try {
       dbCards = await (CardModel as any).find({}).lean();
     } catch {
-      // Database not connected, will fall back below
+      // Database unavailable, fallback below
     }
 
     if (!dbCards || dbCards.length === 0) {
-      // Use built-in static MASTER_DECK fallback
       const allMasterCards: any[] = [];
       for (const cardList of Object.values(MASTER_DECK)) {
         allMasterCards.push(...cardList);
@@ -98,55 +147,49 @@ export class RoomManager {
       dbCards = allMasterCards;
     }
 
-    // Expand card pool if needed so deck has at least neededCards
-    let deckPool = [...dbCards];
-    let multiplier = 2;
-    while (deckPool.length < neededCards) {
-      const cloned = dbCards.map((c) => ({
-        ...c,
-        cardId: `${c.cardId}_dup${multiplier}`,
-        name: `${c.name} (${multiplier})`,
-      }));
-      deckPool = deckPool.concat(cloned);
-      multiplier++;
+    if (dbCards.length < neededCards) {
+      const multiplied: any[] = [];
+      while (multiplied.length < neededCards) {
+        multiplied.push(...dbCards);
+      }
+      dbCards = multiplied;
     }
 
-    // Convert raw card objects to flat GameCard objects
-    const formattedDeck: GameCard[] = deckPool.map((c: any) => {
-      const stats: Record<string, number> = { rating: c.rating };
-
-      if (c.position === 'GK') {
-        stats.diving = c.diving ?? 0;
-        stats.handling = c.handling ?? 0;
-        stats.kicking = c.kicking ?? 0;
-        stats.reflexes = c.reflexes ?? 0;
-        stats.speed = c.speed ?? 0;
-        stats.positioning = c.positioning ?? 0;
-      } else {
-        stats.pace = c.pace ?? 0;
-        stats.shooting = c.shooting ?? 0;
-        stats.passing = c.passing ?? 0;
-        stats.dribbling = c.dribbling ?? 0;
-        stats.defending = c.defending ?? 0;
-        stats.physical = c.physical ?? 0;
-      }
-
-      return {
-        cardId: c.cardId,
-        name: c.name,
-        club: c.club,
-        nationality: c.nationality,
-        position: c.position,
-        image: c.image,
-        clubLogo: c.clubLogo,
-        countryFlag: c.countryFlag,
-        stats,
-      };
-    });
+    const formattedDeck: GameCard[] = dbCards.map((c: any) => ({
+      cardId: c.cardId || String(c._id),
+      name: c.name,
+      club: c.club,
+      nationality: c.nationality,
+      position: c.position,
+      rating: c.rating,
+      image: c.image,
+      clubLogo: c.clubLogo,
+      countryFlag: c.countryFlag,
+      stats: {
+        rating: c.rating,
+        pace: c.pace,
+        shooting: c.shooting,
+        passing: c.passing,
+        dribbling: c.dribbling,
+        defending: c.defending,
+        physical: c.physical,
+        diving: c.diving,
+        handling: c.handling,
+        kicking: c.kicking,
+        reflexes: c.reflexes,
+        speed: c.speed,
+        positioning: c.positioning,
+      },
+    }));
 
     room.engine = new GameEngine(
-      room.id,
-      room.players.map((p) => ({ id: p.id, name: p.name, isHost: p.isHost, isCpu: p.isCpu })),
+      roomId,
+      room.players.map((p) => ({
+        id: p.id,
+        name: p.name,
+        isHost: p.isHost,
+        isCpu: p.isCpu,
+      })),
       formattedDeck
     );
     room.state = 'PLAYING';
@@ -154,37 +197,71 @@ export class RoomManager {
     return { success: true };
   }
 
-  // Handle player departures/disconnects. In active games, converts disconnected player to bot so game never freezes.
+  // Reconnect a player whose socket connection dropped and reconnected with a new socket.id
+  public reconnectPlayer(roomId: string, userId: string, newSocketId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+
+    const player = room.players.find((p) => p.id === userId || p.socketId === userId);
+    if (!player) return false;
+
+    player.socketId = newSocketId;
+    player.connected = true;
+    player.isCpu = false;
+    if (player.name.includes('(BOT)')) {
+      player.name = player.name.replace(' (BOT)', '').replace('(BOT)', '').trim();
+    }
+
+    if (room.engine) {
+      room.engine.reconnectPlayer(player.id, player.id);
+    }
+
+    return true;
+  }
+
+  // Handle player departures/disconnects. In active games, keeps room alive to allow transient reconnects.
   public handlePlayerDisconnect(socketId: string): { roomId?: string; roomEmpty?: boolean } {
     for (const [roomId, room] of this.rooms.entries()) {
-      const idx = room.players.findIndex((p) => p.id === socketId);
-      if (idx !== -1) {
-        const player = room.players[idx]!;
+      const player = room.players.find((p) => p.socketId === socketId);
+      if (player) {
+        player.connected = false;
 
         if (room.state === 'PLAYING' && room.engine) {
-          room.engine.handlePlayerDisconnect(socketId);
-          player.isCpu = true;
-          if (!player.name.includes('(BOT)')) {
-            player.name = `${player.name} (BOT)`;
-          }
+          // Delay bot takeover / room cleanup by 60 seconds to allow cloud reconnects
+          setTimeout(() => {
+            const currentRoom = this.rooms.get(roomId);
+            if (!currentRoom || !currentRoom.engine) return;
+            const p = currentRoom.players.find((pl) => pl.id === player.id);
+            if (p && !p.connected) {
+              p.isCpu = true;
+              if (!p.name.includes('(BOT)')) p.name += ' (BOT)';
+              currentRoom.engine.handlePlayerDisconnect(p.id);
+
+              const anyHumans = currentRoom.players.some((pl) => !pl.isCpu);
+              if (!anyHumans) {
+                this.rooms.delete(roomId);
+              }
+            }
+          }, 60000);
+
+          return { roomId, roomEmpty: false };
         } else {
-          room.players.splice(idx, 1);
-        }
+          // In lobby, clean up if not reconnected in 15s
+          setTimeout(() => {
+            const currentRoom = this.rooms.get(roomId);
+            if (!currentRoom || currentRoom.state !== 'LOBBY') return;
+            const p = currentRoom.players.find((pl) => pl.id === player.id);
+            if (p && !p.connected) {
+              const pIdx = currentRoom.players.findIndex((pl) => pl.id === player.id);
+              if (pIdx !== -1) currentRoom.players.splice(pIdx, 1);
+              if (currentRoom.players.filter((pl) => !pl.isCpu).length === 0) {
+                this.rooms.delete(roomId);
+              }
+            }
+          }, 15000);
 
-        // If no human players left, remove room completely
-        const humanCount = room.players.filter((p) => !p.isCpu).length;
-        if (humanCount === 0) {
-          this.rooms.delete(roomId);
-          return { roomId, roomEmpty: true };
+          return { roomId, roomEmpty: false };
         }
-
-        // Reassign host if the host disconnected
-        if (!room.players.some((p) => p.isHost && !p.isCpu)) {
-          const nextHuman = room.players.find((p) => !p.isCpu);
-          if (nextHuman) nextHuman.isHost = true;
-        }
-
-        return { roomId, roomEmpty: false };
       }
     }
     return {};

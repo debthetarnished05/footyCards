@@ -4,13 +4,14 @@ import type { ClientGameState, RoundShowdown, AnyBattleStat, PlayerState, GameCa
 import { Lobby } from './components/Lobby';
 import { GameArena } from './components/GameArena';
 import { GameOverModal } from './components/GameOverModal';
+import { getPersistentUserId } from './utils/userId';
 import './styles/game.css';
 
 export const App: React.FC = () => {
   const socket = useSocket();
 
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [currentUserId, setCurrentUserId] = useState<string>(getPersistentUserId());
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
   const [lastShowdown, setLastShowdown] = useState<RoundShowdown | null>(null);
   const [gameOverData, setGameOverData] = useState<{
@@ -21,6 +22,17 @@ export const App: React.FC = () => {
   const [calledCard, setCalledCard] = useState<GameCard | null>(null);
 
   useEffect(() => {
+    function onSocketConnect() {
+      if (activeRoomId) {
+        socket.emit('player:reconnect', {
+          roomId: activeRoomId,
+          userId: currentUserId,
+        });
+      }
+    }
+
+    socket.on('connect', onSocketConnect);
+
     socket.on('game:state_sync', (syncedState: ClientGameState) => {
       setGameState(syncedState);
 
@@ -51,17 +63,18 @@ export const App: React.FC = () => {
     });
 
     return () => {
+      socket.off('connect', onSocketConnect);
       socket.off('game:state_sync');
       socket.off('round:category_chosen');
       socket.off('round:showdown');
       socket.off('game:over');
       socket.off('game:error');
     };
-  }, [socket]);
+  }, [socket, activeRoomId, currentUserId]);
 
   const handleGameStarted = (roomId: string, playerId: string) => {
     setActiveRoomId(roomId);
-    setCurrentUserId(playerId || socket.id || '');
+    setCurrentUserId(playerId || getPersistentUserId());
   };
 
   const handleCallStat = (cardId: string, category: AnyBattleStat) => {
@@ -70,6 +83,7 @@ export const App: React.FC = () => {
       roomId: activeRoomId,
       cardId,
       category,
+      userId: currentUserId,
     });
   };
 
@@ -79,6 +93,7 @@ export const App: React.FC = () => {
       roomId: activeRoomId,
       cardId,
       chosenGkStat,
+      userId: currentUserId,
     });
   };
 

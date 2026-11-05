@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../context/SocketContext';
+import { getPersistentUserId } from '../utils/userId';
 import '../styles/lobby.css';
 
 interface LobbyPlayer {
@@ -49,7 +50,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onGameStarted }) => {
     // Host launched match
     socket.on('game:started', () => {
       if (currentRoomId) {
-        onGameStarted(currentRoomId, socket.id || '');
+        onGameStarted(currentRoomId, getPersistentUserId());
       }
     });
 
@@ -72,6 +73,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onGameStarted }) => {
       roomId: generatedRoomId,
       playerName: playerName.trim(),
       maxPlayers,
+      userId: getPersistentUserId(),
     });
   };
 
@@ -84,6 +86,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onGameStarted }) => {
     socket.emit('lobby:join', {
       roomId: roomIdInput.trim().toUpperCase(),
       playerName: playerName.trim(),
+      userId: getPersistentUserId(),
     });
   };
 
@@ -117,7 +120,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onGameStarted }) => {
           <ul className="player-list">
             {players.map((p) => (
               <li key={p.id} className="player-item">
-                <span>{p.name} {p.id === socket.id ? '(You)' : ''}</span>
+                <span>{p.name} {p.id === getPersistentUserId() ? '(You)' : ''}</span>
                 {p.isHost && <span className="player-tag host">HOST</span>}
                 {p.isCpu && <span className="player-tag cpu">BOT</span>}
               </li>

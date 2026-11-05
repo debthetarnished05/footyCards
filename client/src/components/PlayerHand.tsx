@@ -13,6 +13,25 @@ interface PlayerHandProps {
   onSubmitCard: (cardId: string, chosenGkStat?: AnyBattleStat) => void;
 }
 
+export const getCardShortDisplayName = (card: GameCard): string => {
+  const name = card.name.trim();
+  const parts = name.split(/\s+/);
+  if (parts.length <= 1) return name;
+  const last = parts[parts.length - 1].toUpperCase();
+  if (['JR.', 'JR', 'SR.', 'SR', 'II', 'III'].includes(last)) {
+    return parts.slice(Math.max(0, parts.length - 2)).join(' ');
+  }
+  return parts[parts.length - 1];
+};
+
+export const getStatShortLabel = (stat: AnyBattleStat): string => {
+  if (stat === 'rating') return 'OVR';
+  if (stat === 'physical') return 'PHY';
+  if (stat === 'reflexes') return 'REF';
+  if (stat === 'positioning') return 'POS';
+  return stat.toUpperCase().slice(0, 3);
+};
+
 export const PlayerHand: React.FC<PlayerHandProps> = ({
   hand,
   isMyTurnToCall,
@@ -98,7 +117,7 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
           {isMyTurnToCall ? (
             <div className="pitch-call-stat-actions">
               <span className="call-prompt-text">
-                Choose stat for {activeCard.name.split(' ').pop()}:
+                Choose stat for {getCardShortDisplayName(activeCard)}:
               </span>
               <div className="call-stat-pills">
                 {callerStats.map((st) => (
@@ -110,14 +129,14 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
                       onCallStat(activeCard.cardId, st);
                     }}
                   >
-                    {st.toUpperCase().slice(0, 3)} ({activeCard.stats[st] ?? '?'})
+                    {getStatShortLabel(st)} ({activeCard.stats[st] ?? '?'})
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <button className="pitch-lock-in-action-btn" onClick={handleLockIn}>
-              Lock In {activeCard.name.split(' ').pop()} 🔒
+              Lock In {getCardShortDisplayName(activeCard)} 🔒
             </button>
           )}
         </div>
@@ -146,9 +165,9 @@ export const PlayerHand: React.FC<PlayerHandProps> = ({
               className={`fanned-card-item ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''}`}
               style={{
                 transform: isSelected
-                  ? `translate(${translateX}px, ${translateY - 55}px) rotate(0deg) scale(1.15)`
+                  ? `translate(${translateX}px, ${translateY - 20}px) rotate(0deg) scale(1.06)`
                   : isHovered
-                  ? `translate(${translateX}px, ${translateY - 42}px) rotate(0deg) scale(1.12)`
+                  ? `translate(${translateX}px, ${translateY - 14}px) rotate(0deg) scale(1.04)`
                   : `translate(${translateX}px, ${translateY}px) rotate(${rotateDeg}deg)`,
                 zIndex: isSelected ? 150 : isHovered ? 100 : idx + 10,
               }}

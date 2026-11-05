@@ -195,6 +195,38 @@ export class GameEngine {
     }
   }
 
+  // Re-associate a reconnected socket ID to an existing player seamlessly
+  public reconnectPlayer(oldPlayerId: string, newPlayerId: string): boolean {
+    const player = this.state.players[oldPlayerId];
+    if (!player) return false;
+
+    player.id = newPlayerId;
+    player.connected = true;
+    player.isCpu = false;
+    if (player.name.includes('(BOT)')) {
+      player.name = player.name.replace(' (BOT)', '').replace('(BOT)', '').trim();
+    }
+
+    delete this.state.players[oldPlayerId];
+    this.state.players[newPlayerId] = player;
+
+    if (this.state.callerId === oldPlayerId) {
+      this.state.callerId = newPlayerId;
+    }
+
+    const orderIdx = this.state.turnOrder.indexOf(oldPlayerId);
+    if (orderIdx !== -1) {
+      this.state.turnOrder[orderIdx] = newPlayerId;
+    }
+
+    if (this.state.submissions[oldPlayerId]) {
+      this.state.submissions[newPlayerId] = this.state.submissions[oldPlayerId];
+      delete this.state.submissions[oldPlayerId];
+    }
+
+    return true;
+  }
+
   // CPU bot logic supporting GK trump card decisions
   public executeCpuTurns(): void {
     const category = this.state.selectedCategory;
