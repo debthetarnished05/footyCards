@@ -161,7 +161,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onGameStarted }) => {
   return (
     <div className="lobby-container">
       <div className="lobby-card">
-        <h2 className="lobby-title">FOOTY BATTLE CARDS</h2>
+        <h2 className="lobby-title">footyCards</h2>
 
         <div className="form-group">
           <label>Your Display Name</label>
